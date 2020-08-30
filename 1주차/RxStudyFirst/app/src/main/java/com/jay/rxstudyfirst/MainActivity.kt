@@ -9,3 +9,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 }
+
+
+// 이미지, 영화이름, 제작년도, 배우?, 줄거리, 평점

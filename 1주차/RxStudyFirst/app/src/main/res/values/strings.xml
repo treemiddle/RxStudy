@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RxStudyFirst</string>
+    <string name="main_btn_text">영화 호출</string>
 </resources>
