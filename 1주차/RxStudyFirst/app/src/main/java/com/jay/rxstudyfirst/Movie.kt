@@ -1,25 +1,38 @@
 package com.jay.rxstudyfirst
 
-//"movies":[
-//{
-//    "id":8462,
-//    "url":"https:\/\/yts.mx\/movies\/avengers-infinity-war-2018",
-//    "imdb_code":"tt4154756",
-//    "title":"Avengers: Infinity War",
-//    "title_english":"Avengers: Infinity War",
-//    "title_long":"Avengers: Infinity War (2018)",
-//    "slug":"avengers-infinity-war-2018",
-//    "year":2018,
-//    "rating":8.4,
-//    "runtime":149,
-//    "genres":[
-//    "Action",
-//    "Adventure",
-//    "Drama",
-//    "Fantasy",
-//    "Sci-Fi"
-//    ],
-//    "summary":"As
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+
 data class Movie(
-    val str: Int
+    @SerializedName("id")
+    @Expose
+    val id: Int,
+
+    @SerializedName("url")
+    @Expose
+    val url: String,
+
+    @SerializedName("title")
+    @Expose
+    val title: String,
+
+    @SerializedName("year")
+    @Expose
+    val year: Int,
+
+    @SerializedName("rating")
+    @Expose
+    val rating: Float,
+
+    @SerializedName("genres")
+    @Expose
+    val genres: List<String>,
+
+    @SerializedName("summary")
+    @Expose
+    val summary: String,
+
+    @SerializedName("medium_cover_image")
+    @Expose
+    val poster: String
 )

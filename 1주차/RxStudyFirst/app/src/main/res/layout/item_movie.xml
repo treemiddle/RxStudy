@@ -45,7 +45,7 @@
         tools:text="영화 출시일" />
 
     <TextView
-        android:id="@+id/tv_movie_actor"
+        android:id="@+id/tv_movie_genres"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -53,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guide_line"
         app:layout_constraintTop_toBottomOf="@id/tv_movie_year"
-        tools:text="배우" />
+        tools:text="장르 " />
 
     <androidx.appcompat.widget.AppCompatRatingBar
         android:id="@+id/rating_bar"
@@ -63,7 +63,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toBottomOf="@id/tv_movie_actor" />
+        app:layout_constraintTop_toBottomOf="@id/tv_movie_genres" />
 
     <TextView
         android:id="@+id/tv_movie_summary"
