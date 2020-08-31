@@ -8,14 +8,25 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btn_call"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:text="@string/main_btn_text"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/btn_single"
+        style="@style/btn_api_call"
+        android:text="@string/btn_single"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_maybe"
+        style="@style/btn_api_call"
+        android:text="@string/btn_maybe"
+        app:layout_constraintEnd_toStartOf="@id/btn_completable"
+        app:layout_constraintStart_toEndOf="@id/btn_single"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_completable"
+        style="@style/btn_api_call"
+        android:text="@string/btn_completable"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -29,7 +40,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_call"
+        app:layout_constraintTop_toBottomOf="@id/btn_single"
         tools:itemCount="5"
         tools:listitem="@layout/item_movie" />
 

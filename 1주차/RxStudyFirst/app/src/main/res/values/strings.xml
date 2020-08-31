@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">RxStudyFirst</string>
-    <string name="main_btn_text">영화 호출</string>
+    <string name="btn_single">single</string>
+    <string name="btn_maybe">maybe</string>
+    <string name="btn_completable">completable</string>
 </resources>
