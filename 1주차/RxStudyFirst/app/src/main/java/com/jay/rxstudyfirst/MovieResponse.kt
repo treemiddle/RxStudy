@@ -4,11 +4,13 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 data class MovieResponse(
+    @SerializedName("data")
+    @Expose
+    val data: Movies
+)
 
-//    "status":"ok",
-//"status_message":"Query was successful",
-//"data"
+data class Movies(
     @SerializedName("movies")
     @Expose
-    val movie: Movie
+    val movies: List<Movie>
 )
