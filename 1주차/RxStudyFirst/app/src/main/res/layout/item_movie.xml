@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_marginBottom="10dp"
+    android:padding="10dp"
+    android:background="@drawable/bg_underlinge"
     android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.Guideline
@@ -61,6 +62,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:stepSize="0.1"
+        android:numStars="10"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@id/guide_line"
         app:layout_constraintTop_toBottomOf="@id/tv_movie_genres" />

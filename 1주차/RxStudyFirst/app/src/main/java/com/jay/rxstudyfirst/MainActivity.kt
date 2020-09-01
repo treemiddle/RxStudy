@@ -18,7 +18,6 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
 
     private val compositeDisposable = CompositeDisposable()
     private lateinit var recyclerView: RecyclerView
@@ -51,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         adapter = MainAdapter { movie ->
-            Log.d(TAG, "initAdapter: $movie")
+            toastMessage("$movie")
         }
 
         recyclerView.adapter = adapter
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                         is HttpException -> toastMessage(t.toString())
                         else -> toastMessage("${t.message}")
                     }
-                })
+                }).addTo(compositeDisposable)
         }
 
         btnCompletable.setOnClickListener {
@@ -111,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                         is HttpException -> toastMessage(t.toString())
                         else -> toastMessage("${t.message}")
                     }
-                })
+                }).addTo(compositeDisposable)
         }
     }
 
