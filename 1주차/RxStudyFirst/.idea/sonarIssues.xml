@@ -63,6 +63,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$USER_HOME$/Projects/Pro/app/src/main/java/com/artilearn/happygolfpro/api/firebase/FCMMessage.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
       </map>
     </option>
   </component>

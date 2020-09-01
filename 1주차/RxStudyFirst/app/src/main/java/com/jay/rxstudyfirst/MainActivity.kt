@@ -62,26 +62,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initClickListener() {
-        btnSingle.setOnClickListener {
-            api.getMovies().rxSingle()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { isLoading(true) }
-                .doAfterTerminate { isLoading(false) }
-                .subscribe({
-                    Log.d(TAG, "ok: $it")
-                }, {
-                    Log.d(TAG, "initClickListener: ${it.message}")
-                }).addTo(compositeDisposable)
-        }
-
-        btnMaybe.setOnClickListener {
-
-        }
-
-        btnCompletable.setOnClickListener {
-
-        }
+//        btnSingle.setOnClickListener {
+//            api.getMovies().rxSingle()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnSubscribe { isLoading(true) }
+//                .doAfterTerminate { isLoading(false) }
+//                .subscribe({
+//                    Log.d(TAG, "ok: $it")
+//                }, {
+//                    Log.d(TAG, "initClickListener: ${it.message}")
+//                }).addTo(compositeDisposable)
+//        }
+//
+//        btnMaybe.setOnClickListener {
+//
+//        }
+//
+//        btnCompletable.setOnClickListener {
+//
+//        }
     }
 
     private fun isLoading(loading: Boolean) {
@@ -92,21 +92,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun <T> Call<T>.rxSingle(): Single<T> {
+    private fun <T> Call<T>.rxSingle(): Single<T> {
         return Single.create { emitter ->
             this.enqueue(object : Callback<T> {
                 override fun onFailure(call: Call<T>, t: Throwable) {
-                    Log.d(TAG, "onFailure: ${t.message}")
+                    emitter.onError(t)
                 }
 
                 override fun onResponse(call: Call<T>, response: Response<T>) {
                     val body = response.body()
                     if (response.isSuccessful && body != null) {
-                        Log.d(TAG, "onResponse: $body")
                         emitter.onSuccess(body)
                     } else {
-                        Log.d(TAG, "onResponse else: $response")
-                        emitter.onError(Throwable("error"))
+                        emitter.onError(Throwable("server error"))
                     }
                 }
             })

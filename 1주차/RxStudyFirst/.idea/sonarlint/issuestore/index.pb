@@ -15,3 +15,5 @@ g
 7app/src/main/java/com/jay/rxstudyfirst/MovieResponse.kt,6/6/6621cba414f0a03461ac9138796a0d425fc47485
 f
 6app/src/main/java/com/jay/rxstudyfirst/MainActivity.kt,e/4/e4077f1b1627c169b9212726825b183e17838e01
+X
+(gradle/wrapper/gradle-wrapper.properties,f/b/fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
