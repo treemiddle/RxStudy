@@ -3,7 +3,6 @@ package com.jay.rxstudyfirst
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -36,7 +35,7 @@ class MainAdapter(
         private val movieYear = itemView.findViewById<TextView>(R.id.tv_movie_year)
         private val movieGenres = itemView.findViewById<TextView>(R.id.tv_movie_genres)
         private val movieSummary = itemView.findViewById<TextView>(R.id.tv_movie_summary)
-        private val movieScore = itemView.findViewById<TextView>(R.id.rating_bar)
+        private val movieScore = itemView.findViewById<RatingBar>(R.id.rating_bar)
 
         fun bind(movie: Movie) {
             movieName.text = movie.title
