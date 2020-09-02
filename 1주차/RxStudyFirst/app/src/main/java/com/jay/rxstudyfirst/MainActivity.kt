@@ -141,6 +141,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
+
+            emitter.setCancellable { this.cancel() }
         }
     }
 
@@ -161,6 +163,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
+
+            emitter.setCancellable { this.cancel() }
         }
     }
 
@@ -181,6 +185,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
+
+            emitter.setCancellable { this.cancel() }
         }
     }
 
