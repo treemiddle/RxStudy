@@ -1,13 +1,15 @@
 package com.jay.rxstudyfirst
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.*
-import androidx.constraintlayout.utils.widget.MockView
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.*
+import io.reactivex.Completable
+import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -135,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && body != null) {
                         emitter.onSuccess(body)
                     } else {
-                        emitter.onError(Throwable("error"))
+                        emitter.onError(HttpException(response))
                     }
                 }
             })
@@ -155,7 +157,7 @@ class MainActivity : AppCompatActivity() {
                         true -> body?.let {
                             emitter.onSuccess(it)
                         } ?: emitter.onComplete()
-                        false -> emitter.onError(Throwable("error"))
+                        false -> emitter.onError(HttpException(response))
                     }
                 }
             })
@@ -175,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful && body != null) {
                         emitter.onComplete()
                     } else {
-                        emitter.onError(Throwable("error"))
+                        emitter.onError(HttpException(response))
                     }
                 }
             })
