@@ -1,17 +1,14 @@
 package com.jay.rxstudyfirst
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.RatingBar
-import android.widget.TextView
-import androidx.constraintlayout.utils.widget.MockView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.Observable
-import io.reactivex.Scheduler
+import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -19,10 +16,10 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
 
     private val compositeDisposable = CompositeDisposable()
     private lateinit var recyclerView: RecyclerView
@@ -55,33 +52,68 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         adapter = MainAdapter { movie ->
-            Log.d(TAG, "initAdapter: $movie")
+            toastMessage("$movie")
         }
 
         recyclerView.adapter = adapter
     }
 
     private fun initClickListener() {
-//        btnSingle.setOnClickListener {
-//            api.getMovies().rxSingle()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .doOnSubscribe { isLoading(true) }
-//                .doAfterTerminate { isLoading(false) }
-//                .subscribe({
-//                    Log.d(TAG, "ok: $it")
-//                }, {
-//                    Log.d(TAG, "initClickListener: ${it.message}")
-//                }).addTo(compositeDisposable)
-//        }
-//
-//        btnMaybe.setOnClickListener {
-//
-//        }
-//
-//        btnCompletable.setOnClickListener {
-//
-//        }
+        btnSingle.setOnClickListener {
+            api.getMovies().rxSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { isLoading(true) }
+                .doAfterTerminate { isLoading(false) }
+                .subscribe({ response ->
+                    with(adapter) {
+                        clear()
+                        setMovieItem(response.data.movies)
+                        toastMessage("single success")
+                    }
+                }, { t ->
+                    when (t) {
+                        is HttpException -> toastMessage(t.toString())
+                        else -> toastMessage("${t.message}")
+                    }
+                }).addTo(compositeDisposable)
+        }
+
+        btnMaybe.setOnClickListener {
+            api.getMovies().rxMaybe()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { isLoading(true) }
+                .doAfterTerminate { isLoading(false) }
+                .subscribe({ response ->
+                    with(adapter) {
+                        clear()
+                        setMovieItem(response.data.movies)
+                        toastMessage("maybe success")
+                    }
+                }, { t ->
+                    when (t) {
+                        is HttpException -> toastMessage(t.toString())
+                        else -> toastMessage("${t.message}")
+                    }
+                }).addTo(compositeDisposable)
+        }
+
+        btnCompletable.setOnClickListener {
+            api.getMovies().rxCompletable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { isLoading(true) }
+                .doAfterTerminate { isLoading(false) }
+                .subscribe({
+                    toastMessage("completable success!")
+                }, { t ->
+                    when (t) {
+                        is HttpException -> toastMessage(t.toString())
+                        else -> toastMessage("${t.message}")
+                    }
+                }).addTo(compositeDisposable)
+        }
     }
 
     private fun isLoading(loading: Boolean) {
@@ -101,14 +133,65 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onResponse(call: Call<T>, response: Response<T>) {
                     val body = response.body()
+
                     if (response.isSuccessful && body != null) {
                         emitter.onSuccess(body)
                     } else {
-                        emitter.onError(Throwable("server error"))
+                        emitter.onError(HttpException(response))
                     }
                 }
             })
+
+            emitter.setCancellable { this.cancel() }
         }
+    }
+
+    private fun <T> Call<T>.rxMaybe(): Maybe<T> {
+        return Maybe.create { emitter ->
+            this.enqueue(object : Callback<T> {
+                override fun onFailure(call: Call<T>, t: Throwable) {
+                    emitter.onError(t)
+                }
+
+                override fun onResponse(call: Call<T>, response: Response<T>) {
+                    val body = response.body()
+                    when (response.isSuccessful) {
+                        true -> body?.let {
+                            emitter.onSuccess(it)
+                        } ?: emitter.onComplete()
+                        false -> emitter.onError(HttpException(response))
+                    }
+                }
+            })
+
+            emitter.setCancellable { this.cancel() }
+        }
+    }
+
+    private fun <T> Call<T>.rxCompletable(): Completable {
+        return Completable.create { emitter ->
+            this.enqueue(object : Callback<T> {
+                override fun onFailure(call: Call<T>, t: Throwable) {
+                    emitter.onError(t)
+                }
+
+                override fun onResponse(call: Call<T>, response: Response<T>) {
+                    val body = response.body()
+
+                    if (response.isSuccessful && body != null) {
+                        emitter.onComplete()
+                    } else {
+                        emitter.onError(HttpException(response))
+                    }
+                }
+            })
+
+            emitter.setCancellable { this.cancel() }
+        }
+    }
+
+    private fun toastMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
@@ -116,3 +199,4 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 }
+

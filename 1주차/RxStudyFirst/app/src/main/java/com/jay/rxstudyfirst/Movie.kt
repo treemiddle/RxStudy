@@ -22,7 +22,7 @@ data class Movie(
 
     @SerializedName("rating")
     @Expose
-    val rating: Float,
+    val rating: Float?,
 
     @SerializedName("genres")
     @Expose
