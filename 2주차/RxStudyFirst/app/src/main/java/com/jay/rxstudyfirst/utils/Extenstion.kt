@@ -1,5 +1,7 @@
 package com.jay.rxstudyfirst.utils
 
+import android.app.Activity
+import android.widget.Toast
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -72,4 +74,8 @@ fun <T> Call<T>.rxCompletable(): Completable {
 
         emitter.setCancellable { this.cancel() }
     }
+}
+
+fun Activity.activityShowToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
