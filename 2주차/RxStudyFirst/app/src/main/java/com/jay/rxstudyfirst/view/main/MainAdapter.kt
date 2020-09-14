@@ -1,4 +1,4 @@
-package com.jay.rxstudyfirst
+package com.jay.rxstudyfirst.view.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +8,8 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.jay.rxstudyfirst.data.Movie
+import com.jay.rxstudyfirst.R
 
 class MainAdapter(
     private val click: (Movie) -> Unit

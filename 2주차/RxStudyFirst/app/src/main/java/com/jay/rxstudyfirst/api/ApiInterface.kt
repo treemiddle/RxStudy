@@ -1,5 +1,6 @@
-package com.jay.rxstudyfirst
+package com.jay.rxstudyfirst.api
 
+import com.jay.rxstudyfirst.data.MovieResponse
 import retrofit2.Call
 import retrofit2.http.GET
 

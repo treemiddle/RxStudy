@@ -1,4 +1,4 @@
-package com.jay.rxstudyfirst
+package com.jay.rxstudyfirst.data
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

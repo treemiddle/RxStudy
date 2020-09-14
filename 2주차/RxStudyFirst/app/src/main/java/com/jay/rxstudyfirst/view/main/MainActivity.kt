@@ -1,4 +1,4 @@
-package com.jay.rxstudyfirst
+package com.jay.rxstudyfirst.view.main
 
 import android.os.Bundle
 import android.view.View
@@ -7,6 +7,11 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.jay.rxstudyfirst.R
+import com.jay.rxstudyfirst.api.ApiService
+import com.jay.rxstudyfirst.utils.rxCompletable
+import com.jay.rxstudyfirst.utils.rxMaybe
+import com.jay.rxstudyfirst.utils.rxSingle
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
