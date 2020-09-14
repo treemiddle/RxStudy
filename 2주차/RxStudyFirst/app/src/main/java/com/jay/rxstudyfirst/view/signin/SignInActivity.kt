@@ -6,6 +6,9 @@ import android.util.Patterns
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ActivitySignInBinding
 import com.jay.rxstudyfirst.utils.activityShowToast
@@ -28,10 +31,13 @@ class SignInActivity : AppCompatActivity() {
     private var passwordFlag = false
     private var confirmFlag = false
 
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_sign_in)
+        auth = Firebase.auth
 
         initClickListener()
         initTextWatcher()
@@ -42,6 +48,7 @@ class SignInActivity : AppCompatActivity() {
         binding.btnSignin.setOnClickListener {
             if (emailFlag && passwordFlag && confirmFlag) {
                 activityShowToast("성공")
+                signIn(binding.etEmail.text.toString(), binding.etPassword.text.toString())
             } else {
                 activityShowToast("실패")
             }
@@ -112,6 +119,18 @@ class SignInActivity : AppCompatActivity() {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
         startActivity(successIntent)
+    }
+
+    private fun signIn(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    println("user: $user")
+                } else {
+                    println("fail user")
+                }
+            }
     }
 
     override fun onDestroy() {
