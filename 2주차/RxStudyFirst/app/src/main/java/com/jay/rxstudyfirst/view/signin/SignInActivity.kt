@@ -1,5 +1,6 @@
 package com.jay.rxstudyfirst.view.signin
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ActivitySignInBinding
 import com.jay.rxstudyfirst.utils.activityShowToast
+import com.jay.rxstudyfirst.view.login.LoginActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -15,7 +17,6 @@ import io.reactivex.subjects.PublishSubject
 import java.util.regex.Pattern
 
 class SignInActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
 
     private lateinit var binding: ActivitySignInBinding
     private val compositeDisposable = CompositeDisposable()
@@ -103,6 +104,14 @@ class SignInActivity : AppCompatActivity() {
 
     private fun showFailPassword() {
         binding.etPasswordConfirm.error = "비밀번호가 틀립니다"
+    }
+
+    private fun successSignIn() {
+        val successIntent = Intent(this, LoginActivity::class.java)
+            .apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        startActivity(successIntent)
     }
 
     override fun onDestroy() {

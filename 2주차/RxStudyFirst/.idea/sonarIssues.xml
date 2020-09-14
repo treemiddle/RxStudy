@@ -53,6 +53,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/login/LoginActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/signin/SignInActivity.kt">
           <value>
             <set />
