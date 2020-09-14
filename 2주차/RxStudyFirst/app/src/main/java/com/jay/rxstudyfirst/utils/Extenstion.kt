@@ -1,4 +1,4 @@
-package com.jay.rxstudyfirst
+package com.jay.rxstudyfirst.utils
 
 import io.reactivex.Completable
 import io.reactivex.Maybe
