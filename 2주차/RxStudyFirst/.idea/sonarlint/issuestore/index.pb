@@ -17,7 +17,5 @@ f
 6app/src/main/java/com/jay/rxstudyfirst/MainActivity.kt,e/4/e4077f1b1627c169b9212726825b183e17838e01
 X
 (gradle/wrapper/gradle-wrapper.properties,f/b/fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
-_
-/app/src/main/java/com/jay/rxstudyfirst/Utils.kt,7/c/7cfde9a8bf887258453a3d22565fa6f055828498
 <
 build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
