@@ -16,6 +16,7 @@ import com.jay.rxstudyfirst.data.signin.source.SigninRepositoryImpl
 import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSource
 import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivitySignInBinding
+import com.jay.rxstudyfirst.utils.PASSWORD_REGEX
 import com.jay.rxstudyfirst.utils.activityShowToast
 import com.jay.rxstudyfirst.view.login.LoginActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,11 +30,9 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignInBinding
     private val compositeDisposable = CompositeDisposable()
 
-    private val emailBehaviorSubject = PublishSubject.create<String>()
-    private val passwordBehaviorSubject = PublishSubject.create<String>()
-    private val confirmBehaviorSubject = PublishSubject.create<String>()
-
-    private val passwordRegex = "^[a-zA-Z0-9]{6,}$"
+    private val emailPublishSubject = PublishSubject.create<String>()
+    private val passwordPublishSubject = PublishSubject.create<String>()
+    private val confirmPublishSubject = PublishSubject.create<String>()
 
     private lateinit var auth: FirebaseAuth
     private lateinit var viewModel: SigninViewModel
@@ -80,33 +79,33 @@ class SignInActivity : AppCompatActivity() {
     private fun initTextWatcher() {
         with(binding) {
             etEmail.doOnTextChanged { email, _, _, _ ->
-                emailBehaviorSubject.onNext(email.toString())
+                emailPublishSubject.onNext(email.toString())
             }
             etPassword.doOnTextChanged { password, _, _, _ ->
-                passwordBehaviorSubject.onNext(password.toString())
+                passwordPublishSubject.onNext(password.toString())
             }
             etPasswordConfirm.doOnTextChanged { confirm, _, _, _ ->
-                confirmBehaviorSubject.onNext(confirm.toString())
+                confirmPublishSubject.onNext(confirm.toString())
             }
         }
     }
 
     private fun regexCheck() {
-        emailBehaviorSubject.observeOn(AndroidSchedulers.mainThread())
+        emailPublishSubject.observeOn(AndroidSchedulers.mainThread())
             .subscribe { email ->
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     showErrorEmailPatterns()
                 }
             }.addTo(compositeDisposable)
 
-        passwordBehaviorSubject.observeOn(AndroidSchedulers.mainThread())
+        passwordPublishSubject.observeOn(AndroidSchedulers.mainThread())
             .subscribe { password ->
-                if (!Pattern.matches(passwordRegex, password)) {
+                if (!Pattern.matches(PASSWORD_REGEX, password)) {
                     showErrorPasswordPatterns()
                 }
             }.addTo(compositeDisposable)
 
-        confirmBehaviorSubject.observeOn(AndroidSchedulers.mainThread())
+        confirmPublishSubject.observeOn(AndroidSchedulers.mainThread())
             .subscribe { confirm ->
                 if (binding.etPassword.text.toString() != confirm) {
                     showFailPassword()
