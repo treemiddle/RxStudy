@@ -2,7 +2,7 @@ package com.jay.rxstudyfirst.view.signin
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.jay.rxstudyfirst.data.source.SigninRepository
+import com.jay.rxstudyfirst.data.signin.source.SigninRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo

@@ -11,10 +11,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.jay.rxstudyfirst.R
-import com.jay.rxstudyfirst.data.source.SigninRepository
-import com.jay.rxstudyfirst.data.source.SigninRepositoryImpl
-import com.jay.rxstudyfirst.data.source.remote.SigninRemoteDataSource
-import com.jay.rxstudyfirst.data.source.remote.SigninRemoteDataSourceImpl
+import com.jay.rxstudyfirst.data.signin.source.SigninRepository
+import com.jay.rxstudyfirst.data.signin.source.SigninRepositoryImpl
+import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSource
+import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivitySignInBinding
 import com.jay.rxstudyfirst.utils.activityShowToast
 import com.jay.rxstudyfirst.view.login.LoginActivity
@@ -59,14 +59,10 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun initClickListener() {
-        binding.btnSignin.setOnClickListener {
-            viewModel.firebaseSignIn("abc@abc.com", "1q2w3e4r")
-//            if (emailFlag && passwordFlag && confirmFlag) {
-//                activityShowToast("성공")
-//                signIn(binding.etEmail.text.toString(), binding.etPassword.text.toString())
-//            } else {
-//                activityShowToast("실패")
-//            }
+        with(binding) {
+            btnSignin.setOnClickListener {
+                viewModel.firebaseSignIn(etEmail.text.toString(), etPassword.text.toString())
+            }
         }
     }
 
