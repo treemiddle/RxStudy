@@ -3,4 +3,13 @@
     <string name="btn_single">single</string>
     <string name="btn_maybe">maybe</string>
     <string name="btn_completable">completable</string>
+    <string name="signin_fail_password">비밀번호가 틀립니다</string>
+    <string name="signin_confirm_password">비밀번호를 확인해 주세요</string>
+    <string name="signin_check_email">이메일을 확인해 주세요</string>
+    <string name="sigin_success">MyMovie 가입성공</string>
+    <string name="signin_title">MyMovie 회원가입</string>
+    <string name="signin_email_hint">이메일을 입력해주세요</string>
+    <string name="signin_password_hint">비밀번호를 입력해주세요</string>
+    <string name="signin_password_c_hint">비밀번호를 다시 입력해주세요</string>
+    <string name="signin_btn">GOGO</string>
 </resources>
