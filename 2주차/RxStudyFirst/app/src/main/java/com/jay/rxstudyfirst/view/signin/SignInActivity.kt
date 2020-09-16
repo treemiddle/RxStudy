@@ -22,7 +22,6 @@ import com.jay.rxstudyfirst.view.login.LoginActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
-import io.reactivex.subjects.PublishSubject
 import java.util.regex.Pattern
 
 class SignInActivity : AppCompatActivity() {
@@ -30,12 +29,8 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignInBinding
     private val compositeDisposable = CompositeDisposable()
 
-    private val emailPublishSubject = PublishSubject.create<String>()
-    private val passwordPublishSubject = PublishSubject.create<String>()
-    private val confirmPublishSubject = PublishSubject.create<String>()
-
     private lateinit var auth: FirebaseAuth
-    private lateinit var viewModel: SigninViewModel
+    private lateinit var vm: SigninViewModel
     private lateinit var signinRepository: SigninRepository
     private lateinit var signinRemoteDataSource: SigninRemoteDataSource
 
@@ -46,83 +41,91 @@ class SignInActivity : AppCompatActivity() {
         auth = Firebase.auth
         signinRemoteDataSource = SigninRemoteDataSourceImpl(auth)
         signinRepository = SigninRepositoryImpl(signinRemoteDataSource)
-        viewModel = SigninViewModel(signinRepository)
+        vm = SigninViewModel(signinRepository)
 
-        binding.vm = viewModel
+        binding.vm = vm
         binding.lifecycleOwner = this
 
         initViewModelObserving()
-        initClickListener()
         initTextWatcher()
         regexCheck()
     }
 
-    private fun initClickListener() {
-        with(binding) {
-            btnSignin.setOnClickListener {
-                viewModel.firebaseSignIn(etEmail.text.toString(), etPassword.text.toString())
-            }
-        }
-    }
-
     private fun initViewModelObserving() {
-        with(viewModel) {
+        with(vm) {
             success.observe(this@SignInActivity, Observer {
                 successSignIn()
             })
             fail.observe(this@SignInActivity, Observer {
                 activityShowToast(it.message.toString())
             })
+            status.observe(this@SignInActivity, Observer {
+                when (status.value) {
+                    SigninViewModel.SignInStatus.EMPTY_EMAIL -> activityShowToast("이메일 입력하세요")
+                    SigninViewModel.SignInStatus.EMPTY_PASSWORD -> activityShowToast("비밀번호 입력하세요")
+                    SigninViewModel.SignInStatus.EMPTY_PASSWORD_CONFIRM -> activityShowToast("비밀번호 확인하세요")
+                }
+            })
         }
     }
 
     private fun initTextWatcher() {
-        with(binding) {
-            etEmail.doOnTextChanged { email, _, _, _ ->
-                emailPublishSubject.onNext(email.toString())
+        with(vm) {
+            binding.etEmail.doOnTextChanged { email, _, _, _ ->
+                emailBehaviorSubject.onNext(email.toString())
             }
-            etPassword.doOnTextChanged { password, _, _, _ ->
-                passwordPublishSubject.onNext(password.toString())
+            binding.etPassword.doOnTextChanged { password, _, _, _ ->
+                passwordBehaviorSubject.onNext(password.toString())
             }
-            etPasswordConfirm.doOnTextChanged { confirm, _, _, _ ->
-                confirmPublishSubject.onNext(confirm.toString())
+            binding.etPasswordConfirm.doOnTextChanged { password, _, _, _ ->
+                confirmPublishSubject.onNext(password.toString())
             }
         }
     }
 
     private fun regexCheck() {
-        emailPublishSubject.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { email ->
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    showErrorEmailPatterns()
-                }
-            }.addTo(compositeDisposable)
+        vm.emailBehaviorSubject.observeOn(AndroidSchedulers.mainThread())
+            .map { e -> !Patterns.EMAIL_ADDRESS.matcher(e).matches() }
+            .subscribe { result -> emailPatterns(result) }
+            .addTo(compositeDisposable)
 
-        passwordPublishSubject.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { password ->
-                if (!Pattern.matches(PASSWORD_REGEX, password)) {
-                    showErrorPasswordPatterns()
-                }
-            }.addTo(compositeDisposable)
+        vm.passwordBehaviorSubject.observeOn(AndroidSchedulers.mainThread())
+            .map { p -> !Pattern.matches(PASSWORD_REGEX, p) }
+            .subscribe { result -> passwordPatterns(result) }
+            .addTo(compositeDisposable)
 
-        confirmPublishSubject.observeOn(AndroidSchedulers.mainThread())
+        vm.confirmPublishSubject.observeOn(AndroidSchedulers.mainThread())
             .subscribe { confirm ->
-                if (binding.etPassword.text.toString() != confirm) {
-                    showFailPassword()
+                if (vm.passwordBehaviorSubject.value != confirm) {
+                    showPasswordCheck(true)
+                } else {
+                    showPasswordCheck(false)
                 }
             }.addTo(compositeDisposable)
     }
 
-    private fun showErrorEmailPatterns() {
-        binding.etEmail.error = getString(R.string.signin_check_email)
+    private fun emailPatterns(visibile: Boolean) {
+        binding.etEmail.error = if (visibile) {
+            getString(R.string.signin_check_email)
+        } else {
+            null
+        }
     }
 
-    private fun showErrorPasswordPatterns() {
-        binding.etPassword.error = getString(R.string.signin_confirm_password)
+    private fun passwordPatterns(visibile: Boolean) {
+        binding.etPassword.error = if (visibile) {
+            getString(R.string.signin_confirm_password)
+        } else {
+            null
+        }
     }
 
-    private fun showFailPassword() {
-        binding.etPasswordConfirm.error = getString(R.string.signin_fail_password)
+    private fun showPasswordCheck(visibile: Boolean) {
+        binding.etPasswordConfirm.error = if (visibile) {
+            getString(R.string.signin_fail_password)
+        } else {
+            null
+        }
     }
 
     private fun successSignIn() {

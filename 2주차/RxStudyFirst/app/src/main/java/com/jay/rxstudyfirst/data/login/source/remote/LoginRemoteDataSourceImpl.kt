@@ -14,18 +14,14 @@ class LoginRemoteDataSourceImpl(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val user = auth.currentUser
-                        println("user: $user")
                         user?.let { firebaseUser ->
                             emitter.onSuccess(firebaseUser)
                         }
                     } else {
                         task.exception?.let { t ->
                             emitter.onError(t)
-                        } ?: emitter.onError(Throwable(IllegalStateException("error")))
+                        } ?: emitter.onError(Throwable(IllegalStateException("UnKnown Error")))
                     }
-                }
-                .addOnFailureListener {
-                    Single.error<Throwable>(it)
                 }
         }
     }

@@ -39,3 +39,5 @@ r
 Bapp/src/main/java/com/jay/rxstudyfirst/view/login/LoginActivity.kt,2/b/2bc08462989aaf4c951a036d7887b356396af762
 t
 Dapp/src/main/java/com/jay/rxstudyfirst/view/signin/SignInActivity.kt,0/6/067da0c2971ab58331fa2380a9dd5afffbaf48c1
+i
+9app/src/main/java/com/jay/rxstudyfirst/utils/Constants.kt,9/9/99ce277414bab895818be4cf5ef7414f64f26c17

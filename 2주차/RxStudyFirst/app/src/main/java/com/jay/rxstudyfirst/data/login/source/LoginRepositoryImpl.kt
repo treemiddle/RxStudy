@@ -10,8 +10,5 @@ class LoginRepositoryImpl(
 
     override fun login(email: String, password: String): Single<FirebaseUser> {
         return loginRemoteDataSource.login(email, password)
-            .flatMap {
-                Single.just(it)
-            }
     }
 }
