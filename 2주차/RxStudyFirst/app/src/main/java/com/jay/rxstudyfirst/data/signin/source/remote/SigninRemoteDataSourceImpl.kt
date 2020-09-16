@@ -18,9 +18,6 @@ class SigninRemoteDataSourceImpl(
                         emitter.onError(Throwable(task.exception))
                     }
                 }
-                .addOnFailureListener { error ->
-                    emitter.onError(error)
-                }
         }
     }
 }
