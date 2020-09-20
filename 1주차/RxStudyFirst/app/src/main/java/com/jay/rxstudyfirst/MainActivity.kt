@@ -1,5 +1,6 @@
 package com.jay.rxstudyfirst
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -53,7 +54,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initClickListener() {
-        btnSingle.setOnClickListener { callSingle() }
+        btnSingle.setOnClickListener {
+            //callSingle()
+            startActivity(Intent(this, TestActivity::class.java))
+        }
         btnMaybe.setOnClickListener { callMaybe() }
         btnCompletable.setOnClickListener { callCompletable() }
     }
