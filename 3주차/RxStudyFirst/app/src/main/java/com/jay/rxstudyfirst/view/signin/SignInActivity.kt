@@ -10,10 +10,12 @@ import androidx.lifecycle.Observer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.data.signin.source.SigninRepository
 import com.jay.rxstudyfirst.data.signin.source.SigninRepositoryImpl
 import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSource
 import com.jay.rxstudyfirst.data.signin.source.remote.SigninRemoteDataSourceImpl
+import com.jay.rxstudyfirst.databinding.ActivitySignInBinding
 import com.jay.rxstudyfirst.utils.PASSWORD_REGEX
 import com.jay.rxstudyfirst.utils.activityShowToast
 import com.jay.rxstudyfirst.view.login.LoginActivity
