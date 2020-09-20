@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "522663947488",
+    "firebase_url": "https://rxstudy-dd4df.firebaseio.com",
+    "project_id": "rxstudy-dd4df",
+    "storage_bucket": "rxstudy-dd4df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522663947488:android:02209714e37a2210087485",
+        "android_client_info": {
+          "package_name": "com.jay.rxstudyfirst"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "522663947488-8jpr6vp47501m1u13rne8s07rett0e5n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbbFh01ciAgQzEIH8zJ7Odjn8tHeaNVg4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "522663947488-8jpr6vp47501m1u13rne8s07rett0e5n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
