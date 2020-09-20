@@ -15,8 +15,8 @@ class LoginViewModel(private val loginRepository: LoginRepository) {
 
     private val compositeDisposable = CompositeDisposable()
 
-    val emailBehaviorSubject = BehaviorSubject.create<String>()
-    val passwordBehaviorSubject = BehaviorSubject.create<String>()
+    val emailBehaviorSubject = BehaviorSubject.createDefault("apple@apple.com")
+    val passwordBehaviorSubject = BehaviorSubject.createDefault("1q2w3e4r")
     val _onTosClick = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)

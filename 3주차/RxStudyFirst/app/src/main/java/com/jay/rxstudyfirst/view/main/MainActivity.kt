@@ -6,9 +6,15 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.*
+import com.jay.rxstudyfirst.api.ApiInterface
 import com.jay.rxstudyfirst.api.ApiService
+import com.jay.rxstudyfirst.data.main.source.MainRepository
+import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
+import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
+import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import com.jay.rxstudyfirst.utils.rxCompletable
 import com.jay.rxstudyfirst.utils.rxMaybe
 import com.jay.rxstudyfirst.utils.rxSingle
@@ -16,7 +22,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
+import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.HttpException
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +37,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MainAdapter
     private lateinit var progressbar: ProgressBar
 
+    private lateinit var vm: MainViewModel
+    private lateinit var repository: MainRepository
+    private lateinit var remote: MainRemoteDataSource
+    private lateinit var service: ApiInterface
+    private val test = BehaviorSubject.create<String>()
+
     private val api by lazy {
         ApiService.api
     }
@@ -36,9 +51,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        service = ApiService.api
+        remote = MainRemoteDataSourceImpl(service)
+        repository = MainRepositoryImpl(remote)
+        vm = MainViewModel(repository)
+
         initView()
         initAdapter()
         initClickListener()
+
+        et_query.addTextChangedListener { test.onNext(it.toString()) }
+        test.debounce(700, TimeUnit.MILLISECONDS)
+            .filter { it.length >= 3 }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                vm.test(it)
+            }.let(compositeDisposable::add)
     }
 
     private fun initView() {
