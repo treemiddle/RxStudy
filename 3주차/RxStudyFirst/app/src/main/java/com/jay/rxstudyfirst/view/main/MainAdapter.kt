@@ -58,6 +58,7 @@ class MainAdapter(
     }
 
     fun setMovieItem(movies: List<Movie>) {
+        clear()
         this.items.addAll(movies)
         notifyDataSetChanged()
     }
