@@ -43,6 +43,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/build/generated/ap_generated_sources/debug/out/com/jay/rxstudyfirst/DataBinderMapperImpl.java">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
           <value>
             <set />
@@ -83,6 +88,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/api/ApiInterface.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/api/ApiService.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/Movie.kt">
           <value>
             <set />
@@ -109,6 +124,26 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/login/source/remote/LoginRemoteDataSourceImpl.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/main/source/MainRepository.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/main/source/MainRepositoryImpl.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/main/source/remote/MainRemoteDataSource.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/main/source/remote/MainRemoteDataSourceImpl.kt">
           <value>
             <set />
           </value>
@@ -168,7 +203,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/MyApplication.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/SingleLiveEvent.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/TTTe.kt">
           <value>
             <set />
           </value>
@@ -183,12 +228,37 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/main/MainActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/main/MainAdapter.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/main/MainViewModel.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/signin/SignInActivity.kt">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/signin/SigninViewModel.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/tos/TermsOfUseActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/view/tos/TermsOfUseViewModel.kt">
           <value>
             <set />
           </value>
@@ -209,6 +279,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/res/layout/activity_sign_in.xml">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/res/layout/activity_terms_of_use.xml">
           <value>
             <set />
           </value>

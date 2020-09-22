@@ -9,13 +9,15 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 
 class LoginViewModel(private val loginRepository: LoginRepository) {
 
     private val compositeDisposable = CompositeDisposable()
 
-    val emailBehaviorSubject = BehaviorSubject.create<String>()
-    val passwordBehaviorSubject = BehaviorSubject.create<String>()
+    val emailBehaviorSubject = BehaviorSubject.createDefault("apple@apple.com")
+    val passwordBehaviorSubject = BehaviorSubject.createDefault("1q2w3e4r")
+    val _onTosClick = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
     private val _fail = SingleLiveEvent<Throwable>()
@@ -29,7 +31,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) {
     val status: LiveData<LoginStatus> get() = _status
     val signup: LiveData<Unit> get() = _signup
 
-
     fun onLogin() {
         when {
             emailBehaviorSubject.value.isNullOrEmpty() -> _status.value = LoginStatus.EMAIL_EMPTY
@@ -40,6 +41,10 @@ class LoginViewModel(private val loginRepository: LoginRepository) {
 
     fun onSignup() {
         _signup.call()
+    }
+
+    fun onTos() {
+        _onTosClick.onNext(Unit)
     }
 
     private fun firebaseLogin(email: String, password: String) {

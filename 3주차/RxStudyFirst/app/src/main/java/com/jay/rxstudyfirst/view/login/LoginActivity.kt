@@ -20,9 +20,11 @@ import com.jay.rxstudyfirst.utils.PASSWORD_REGEX
 import com.jay.rxstudyfirst.utils.activityShowToast
 import com.jay.rxstudyfirst.view.main.MainActivity
 import com.jay.rxstudyfirst.view.signin.SignInActivity
+import com.jay.rxstudyfirst.view.tos.TermsOfUseActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
+import kotlinx.android.synthetic.main.activity_login.*
 import java.util.regex.Pattern
 
 class LoginActivity : AppCompatActivity() {
@@ -93,6 +95,10 @@ class LoginActivity : AppCompatActivity() {
             .map { p -> !Pattern.matches(PASSWORD_REGEX, p) }
             .subscribe { result -> passwordPatterns(result) }
             .addTo(compositeDisposable)
+
+        vm._onTosClick.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { startActivity(Intent(this, TermsOfUseActivity::class.java)) }
+            .let(compositeDisposable::add)
     }
 
     private fun emailPatterns(visibile: Boolean) {
