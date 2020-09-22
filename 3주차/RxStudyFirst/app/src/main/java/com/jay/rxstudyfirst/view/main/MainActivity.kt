@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.jay.rxstudyfirst.R
@@ -14,14 +15,9 @@ import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.merge
 
 class MainActivity : AppCompatActivity() {
 
-    private val compositeDisposable = CompositeDisposable()
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
@@ -35,9 +31,7 @@ class MainActivity : AppCompatActivity() {
         initView()
         initViewModelObserving()
         initAdapter()
-
         initTextWatcher()
-        rxBind()
     }
 
     private fun initView() {
@@ -74,24 +68,9 @@ class MainActivity : AppCompatActivity() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
     }
 
-    private fun rxBind() {
-        val movieQuery = vm.searchButtonClick()
-        val searchClick = vm.searchMovie()
-
-        listOf(movieQuery, searchClick)
-            .merge()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { vm.getMovie() }
-            .addTo(compositeDisposable)
-    }
-
     private fun toastMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onDestroy() {
-        compositeDisposable.clear()
-        super.onDestroy()
-    }
 }
 

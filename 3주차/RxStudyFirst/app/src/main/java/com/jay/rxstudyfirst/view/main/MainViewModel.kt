@@ -8,15 +8,20 @@ import com.jay.rxstudyfirst.utils.SingleLiveEvent
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.merge
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
 
     private val compositeDisposable = CompositeDisposable()
+    private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
-    private val onSearchClick = BehaviorSubject.create<String>()
+    private val onSearchClick = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
     private val _movieList = SingleLiveEvent<List<Movie>>()
@@ -26,8 +31,18 @@ class MainViewModel(private val mainRepository: MainRepository) {
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
 
-    fun getMovie() {
-        mainRepository.getMovie(querySubject.value!!)
+    init {
+        rxBind()
+    }
+
+    private fun getMovie(query: String) {
+        disposable?.let {
+            if (!it.isDisposed) {
+                it.dispose()
+            }
+        }
+
+        disposable = mainRepository.getMovie(query)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
@@ -41,29 +56,44 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 }
             }, { t ->
                 _fail.value = t.message
-            }).let(compositeDisposable::add)
+            }).addTo(compositeDisposable)
     }
 
     fun onSearchClick() {
-        when {
-            querySubject.value.isNullOrEmpty() -> _fail.value = "영화를 입력하세요"
-            else -> onSearchClick.onNext(querySubject.value!!)
-        }
+        onSearchClick.onNext(Unit)
     }
 
     fun queryOnNext(query: String?) {
         query?.let { querySubject.onNext(query) }
     }
 
-    fun searchButtonClick(): Observable<String> {
+    private fun showNullQuery() {
+        _fail.value = "영화를 검색해 주세요"
+    }
+
+    private fun searchButtonClick(): Observable<String> {
         return onSearchClick.throttleFirst(2_000, TimeUnit.MILLISECONDS)
-            .filter { querySubject.value!! != it }
+            .map { querySubject.value ?: "" }
             .distinctUntilChanged()
     }
 
-    fun searchMovie(): Observable<String> {
+    private fun searchMovie(): Observable<String> {
         return querySubject.debounce(1_000, TimeUnit.MILLISECONDS)
             .filter { it.length >= 2 }
+    }
+
+    private fun rxBind() {
+        val movieQuery = searchButtonClick()
+        val searchClick = searchMovie()
+
+        listOf(movieQuery, searchClick)
+            .merge()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { query ->
+                if (query.isNullOrEmpty()) showNullQuery()
+                else getMovie(query)
+            }
+            .addTo(compositeDisposable)
     }
 
     private fun showLoading() {
@@ -73,4 +103,5 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private fun hideLoading() {
         _isLoading.value = false
     }
+
 }

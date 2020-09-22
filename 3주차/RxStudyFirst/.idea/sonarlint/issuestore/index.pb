@@ -61,3 +61,5 @@ h
 8app/src/main/java/com/jay/rxstudyfirst/api/ApiService.kt,5/3/53769a10e8914dfce3d3ce530605bb9619c1f8ce
 q
 Aapp/src/main/java/com/jay/rxstudyfirst/view/main/MainViewModel.kt,d/3/d36b0f4e261d8525f2dfdaf9d40f68cc37b7a385
+o
+?app/src/main/java/com/jay/rxstudyfirst/utils/SingleLiveEvent.kt,b/d/bd44cf6066528efb9aa0c09402c34eede58bc0bd

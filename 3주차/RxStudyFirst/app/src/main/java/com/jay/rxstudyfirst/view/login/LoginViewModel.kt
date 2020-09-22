@@ -31,7 +31,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) {
     val status: LiveData<LoginStatus> get() = _status
     val signup: LiveData<Unit> get() = _signup
 
-
     fun onLogin() {
         when {
             emailBehaviorSubject.value.isNullOrEmpty() -> _status.value = LoginStatus.EMAIL_EMPTY

@@ -14,4 +14,5 @@ interface ApiInterface {
     fun getMovie(
         @Query("query_term") query: String
     ): Call<MovieResponse>
+
 }
