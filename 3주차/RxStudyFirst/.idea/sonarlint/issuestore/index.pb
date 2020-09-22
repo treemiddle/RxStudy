@@ -63,3 +63,11 @@ q
 Aapp/src/main/java/com/jay/rxstudyfirst/view/main/MainViewModel.kt,d/3/d36b0f4e261d8525f2dfdaf9d40f68cc37b7a385
 o
 ?app/src/main/java/com/jay/rxstudyfirst/utils/SingleLiveEvent.kt,b/d/bd44cf6066528efb9aa0c09402c34eede58bc0bd
+Y
+)app/src/main/res/layout/activity_main.xml,7/6/76b07e40f24cce093536731477540f12e7da3cb6
+S
+#app/src/main/res/values/strings.xml,d/2/d2281fbb3027de2722081a53408dd77628bf080e
+m
+=app/src/main/java/com/jay/rxstudyfirst/utils/MyApplication.kt,f/6/f6e0fac342b9f753cf04f8ecaa24c812ce4c0f2e
+Z
+*app/src/main/res/layout/activity_login.xml,1/f/1f7e901185d74bf05f9fcb38f9ed35ea78cd4c6e
