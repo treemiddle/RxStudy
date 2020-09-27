@@ -1,8 +1,11 @@
 package com.jay.rxstudyfirst.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
+@Entity(tableName = "movie")
 data class Movie(
     @SerializedName("id")
     @Expose
@@ -12,6 +15,7 @@ data class Movie(
     @Expose
     val url: String,
 
+    @PrimaryKey(autoGenerate = false)
     @SerializedName("title")
     @Expose
     val title: String,
@@ -34,5 +38,8 @@ data class Movie(
 
     @SerializedName("medium_cover_image")
     @Expose
-    val poster: String
+    val poster: String,
+
+    @Expose
+    var hasLiked: Boolean = false
 )
