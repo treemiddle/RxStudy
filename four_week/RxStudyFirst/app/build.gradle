@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 
 android {
@@ -70,4 +71,11 @@ dependencies {
 
     implementation group: 'com.google.android.material', name: 'material', version: '1.2.1'
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+
+    // room
+    implementation "androidx.room:room-runtime:2.2.5"
+    kapt "androidx.room:room-compiler:2.2.5"
+    implementation "androidx.room:room-rxjava2:2.2.5"
+    testImplementation "androidx.room:room-testing:2.2.5"
+    implementation 'androidx.room:room-ktx:2.2.5'
 }
