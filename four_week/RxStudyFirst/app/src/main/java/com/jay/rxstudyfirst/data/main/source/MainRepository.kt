@@ -6,4 +6,6 @@ import io.reactivex.Single
 interface MainRepository {
 
     fun getMovie(query: String): Single<MovieResponse>
+
+    fun getMoreMovies(query: String, page: Int): Single<MovieResponse>
 }

@@ -7,6 +7,8 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.api.ApiInterface
 import com.jay.rxstudyfirst.api.ApiService
@@ -15,6 +17,7 @@ import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
+import com.jay.rxstudyfirst.utils.EndlessRecyclerViewScrollListener
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var repository: MainRepository
     private lateinit var remote: MainRemoteDataSource
     private lateinit var service: ApiInterface
+    private var currentPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         initViewModelObserving()
         initAdapter()
         initTextWatcher()
+        initScrollListener()
     }
 
     private fun initView() {
@@ -48,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViewModelObserving() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
+                println("===== movieList Size: ${it.size}")
                 adapter.setMovieItem(it)
             })
             fail.observe(this@MainActivity, Observer {
@@ -66,6 +72,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTextWatcher() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
+    }
+
+    private fun initScrollListener() {
+        binding.recyclerView.addOnScrollListener(
+            object : EndlessRecyclerViewScrollListener(
+                layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+            ) {
+                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                    println("===== more ===== page: $page, total: $totalItemsCount")
+                    vm.getMoreMovies(page+1)
+                }
+            }
+        )
     }
 
     private fun toastMessage(message: String) {

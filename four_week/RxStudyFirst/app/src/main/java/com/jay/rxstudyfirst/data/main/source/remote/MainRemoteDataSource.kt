@@ -6,4 +6,7 @@ import io.reactivex.Single
 interface MainRemoteDataSource {
 
     fun getMovie(query: String): Single<MovieResponse>
+
+    fun getMoreMovies(query: String, page: Int): Single<MovieResponse>
+
 }

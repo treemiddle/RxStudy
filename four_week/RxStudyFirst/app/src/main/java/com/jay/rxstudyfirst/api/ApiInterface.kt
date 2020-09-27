@@ -15,4 +15,10 @@ interface ApiInterface {
         @Query("query_term") query: String
     ): Call<MovieResponse>
 
+    @GET("list_movies.json")
+    fun getMoreMovies(
+        @Query("query_term") query: String,
+        @Query("page") page: Int
+    ): Call<MovieResponse>
+
 }

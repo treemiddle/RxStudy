@@ -12,4 +12,8 @@ class MainRemoteDataSourceImpl(
     override fun getMovie(query: String): Single<MovieResponse> {
         return remote.getMovie(query).rxSingle()
     }
+
+    override fun getMoreMovies(query: String, page: Int): Single<MovieResponse> {
+        return remote.getMoreMovies(query, page).rxSingle()
+    }
 }

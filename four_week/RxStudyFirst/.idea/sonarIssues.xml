@@ -33,12 +33,42 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../../../Rimwe/app/build.gradle">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../../../Rimwe/app/src/main/java/com/jay/rimwe/MainActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../../../Rimwe/app/src/main/res/layout/activity_main.xml">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../../../RxJavaSample/app/src/main/java/com/dino/rxsample/MainActivity.kt">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../../../RxJavaSample/app/src/main/java/com/dino/rxsample/week5/buffer/BufferActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../1주차/RxStudyFirst/app/src/main/java/com/jay/rxstudyfirst/MainActivity.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../4주차/RxStudyFirst/app/src/main/java/com/jay/rxstudyfirst/data/main/source/MainRepositoryImpl.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../4주차/RxStudyFirst/app/src/main/java/com/jay/rxstudyfirst/view/main/MainViewModel.kt">
           <value>
             <set />
           </value>
@@ -203,6 +233,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/EndlessRecyclerViewScrollListener.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/Extenstion.kt">
           <value>
             <set />
@@ -219,6 +254,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/TTTe.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/utils/aaa.kt">
           <value>
             <set />
           </value>

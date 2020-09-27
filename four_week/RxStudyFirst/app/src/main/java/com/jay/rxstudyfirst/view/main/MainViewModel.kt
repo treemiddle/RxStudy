@@ -59,6 +59,29 @@ class MainViewModel(private val mainRepository: MainRepository) {
             }).addTo(compositeDisposable)
     }
 
+    fun getMoreMovies(page: Int) {
+        println("===== getMoreMovies: $page =====")
+        mainRepository.getMoreMovies(querySubject.value!!, page)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { showLoading() }
+            .doAfterTerminate { hideLoading() }
+            .subscribe({ response ->
+                with(response.data.movies) {
+                    when {
+                        this.isNullOrEmpty() -> _fail.value = "??????"
+                        else -> {
+                            val pagingList = _movieList.value as ArrayList<Movie>
+                            pagingList.addAll(response.data.movies)
+                            _movieList.value = pagingList
+                        }
+                    }
+                }
+            }, { t ->
+                _fail.value = t.message
+            }).addTo(compositeDisposable)
+    }
+
     fun onSearchClick() {
         onSearchClick.onNext(Unit)
     }
