@@ -10,23 +10,17 @@ import com.jay.rxstudyfirst.data.Movie
 abstract class JDataBase : RoomDatabase() {
     abstract fun movieDao(): MovieDao
 
-    companion object {
-        @Volatile
-        private var instance: JDataBase? = null
-        private val LOCK = Any()
+    object Factory {
+        private const val DATABASE_NAME = "jmovie.db"
 
-        operator fun invoke(context: Context) =
-            instance ?: synchronized(LOCK) {
-                instance ?: buildDatabase(context).also {
-                    instance = it
-                }
-            }
+        fun create(context: Context): JDataBase {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                JDataBase::class.java,
+                DATABASE_NAME
+            )
+                .build()
+        }
 
-        private fun buildDatabase(context: Context) = Room.databaseBuilder(
-            context.applicationContext,
-            JDataBase::class.java,
-            "j_database"
-        )
-            .build()
     }
 }

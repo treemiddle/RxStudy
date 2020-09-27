@@ -1,12 +1,14 @@
 package com.jay.rxstudyfirst.data
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "movie")
-data class Movie(
+data class Movie @JvmOverloads constructor(
+    @PrimaryKey(autoGenerate = false)
     @SerializedName("id")
     @Expose
     val id: Int,
@@ -15,7 +17,6 @@ data class Movie(
     @Expose
     val url: String,
 
-    @PrimaryKey(autoGenerate = false)
     @SerializedName("title")
     @Expose
     val title: String,
@@ -30,7 +31,8 @@ data class Movie(
 
     @SerializedName("genres")
     @Expose
-    val genres: List<String>,
+    @Ignore
+    val genres: List<String>? = null,
 
     @SerializedName("summary")
     @Expose
@@ -40,6 +42,5 @@ data class Movie(
     @Expose
     val poster: String,
 
-    @Expose
     var hasLiked: Boolean = false
 )

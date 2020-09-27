@@ -12,8 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.api.ApiInterface
 import com.jay.rxstudyfirst.api.ApiService
+import com.jay.rxstudyfirst.data.database.JDataBase
+import com.jay.rxstudyfirst.data.database.MovieDao
 import com.jay.rxstudyfirst.data.main.source.MainRepository
 import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
+import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
+import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSourceImpl
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
@@ -24,10 +28,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
+    private lateinit var dao: MovieDao
     private lateinit var repository: MainRepository
     private lateinit var remote: MainRemoteDataSource
+    private lateinit var local: MainLocalDataSource
     private lateinit var service: ApiInterface
-    private var currentPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +47,10 @@ class MainActivity : AppCompatActivity() {
     private fun initView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         service = ApiService.api
+        dao = JDataBase.Factory.create(applicationContext).movieDao()
         remote = MainRemoteDataSourceImpl(service)
-        repository = MainRepositoryImpl(remote)
+        local = MainLocalDataSourceImpl(dao)
+        repository = MainRepositoryImpl(remote, local)
         vm = MainViewModel(repository)
 
         binding.vm = vm
@@ -65,6 +72,7 @@ class MainActivity : AppCompatActivity() {
     private fun initAdapter() {
         adapter = MainAdapter { movie ->
             toastMessage("$movie")
+            println("$movie")
         }
 
         binding.recyclerView.adapter = adapter

@@ -50,7 +50,7 @@ class MainAdapter(
                     .into(moviePoster)
                 movieName.text = title
                 movieYear.text = year.toString()
-                movieGenres.text = genres.joinToString(" | ")
+                movieGenres.text = genres?.joinToString(" | ")
                 movieSummary.text = summary
                 movieScore.rating = rating ?: 0f
             }
