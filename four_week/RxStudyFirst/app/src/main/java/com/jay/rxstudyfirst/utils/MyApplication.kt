@@ -3,7 +3,12 @@ package com.jay.rxstudyfirst.utils
 import android.app.Application
 import android.util.Log
 import com.facebook.stetho.Stetho
+import com.jay.rxstudyfirst.api.ApiService
+import com.jay.rxstudyfirst.data.database.JDataBase
 import com.jay.rxstudyfirst.data.main.source.MainRepository
+import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
+import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSourceImpl
+import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import java.io.IOException
@@ -16,12 +21,19 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        inject()
         initStetho()
         rxErrorHandler()
     }
 
     private fun inject() {
+        val networkService = ApiService.api
+        val database = JDataBase.Factory.create(applicationContext)
 
+        val mainRemoteDataSource = MainRemoteDataSourceImpl(networkService)
+        val mainLocalDataSource = MainLocalDataSourceImpl(database.movieDao())
+
+        mainReposiroy = MainRepositoryImpl(mainRemoteDataSource, mainLocalDataSource)
     }
 
     private fun initStetho() {

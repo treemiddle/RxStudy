@@ -9,7 +9,6 @@ class MainLocalDataSourceImpl(
 ) : MainLocalDataSource {
 
     override fun insertMovies(movies: List<Movie>): Completable {
-        println("local movies: ${movies.size}")
         return dao.insertMovies(movies)
     }
 }

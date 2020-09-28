@@ -22,21 +22,24 @@ import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
 import com.jay.rxstudyfirst.utils.EndlessRecyclerViewScrollListener
+import com.jay.rxstudyfirst.utils.MyApplication
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
-    private lateinit var dao: MovieDao
-    private lateinit var repository: MainRepository
-    private lateinit var remote: MainRemoteDataSource
-    private lateinit var local: MainLocalDataSource
-    private lateinit var service: ApiInterface
+//    private lateinit var dao: MovieDao
+//    private lateinit var repository: MainRepository
+//    private lateinit var remote: MainRemoteDataSource
+//    private lateinit var local: MainLocalDataSource
+//    private lateinit var service: ApiInterface
+    private lateinit var myApplication: MyApplication
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        inject()
         initView()
         initViewModelObserving()
         initAdapter()
@@ -44,14 +47,19 @@ class MainActivity : AppCompatActivity() {
         initScrollListener()
     }
 
+    private fun inject() {
+        myApplication = application as MyApplication
+        vm = MainViewModel(myApplication.mainReposiroy)
+    }
+
     private fun initView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        service = ApiService.api
-        dao = JDataBase.Factory.create(application).movieDao()
-        remote = MainRemoteDataSourceImpl(service)
-        local = MainLocalDataSourceImpl(dao)
-        repository = MainRepositoryImpl(remote, local)
-        vm = MainViewModel(repository)
+//        service = ApiService.api
+//        dao = JDataBase.Factory.create(application).movieDao()
+//        remote = MainRemoteDataSourceImpl(service)
+//        local = MainLocalDataSourceImpl(dao)
+//        repository = MainRepositoryImpl(remote, local)
+//        vm = MainViewModel(repository)
 
         binding.vm = vm
         binding.lifecycleOwner = this

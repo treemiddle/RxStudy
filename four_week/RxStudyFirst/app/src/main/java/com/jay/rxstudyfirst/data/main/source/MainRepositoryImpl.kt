@@ -14,9 +14,9 @@ class MainRepositoryImpl(
     override fun getMovie(query: String): Single<List<Movie>> {
         return remoteDataSource.getMovie(query)
             .map { it.data.movies }
-            .doOnSuccess {
-                println("repository: ${it.size}")
-                localDataSource.insertMovies(it)
+            .flatMap { movies ->
+                localDataSource.insertMovies(movies)
+                    .andThen(Single.just(movies))
             }
     }
 
