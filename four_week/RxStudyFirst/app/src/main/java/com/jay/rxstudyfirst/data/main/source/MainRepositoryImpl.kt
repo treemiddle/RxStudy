@@ -1,5 +1,6 @@
 package com.jay.rxstudyfirst.data.main.source
 
+import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieResponse
 import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
@@ -10,8 +11,13 @@ class MainRepositoryImpl(
     private val localDataSource: MainLocalDataSource
 ) : MainRepository {
 
-    override fun getMovie(query: String): Single<MovieResponse> {
+    override fun getMovie(query: String): Single<List<Movie>> {
         return remoteDataSource.getMovie(query)
+            .map { it.data.movies }
+            .doOnSuccess {
+                println("repository: ${it.size}")
+                localDataSource.insertMovies(it)
+            }
     }
 
     override fun getMoreMovies(query: String, page: Int): Single<MovieResponse> {

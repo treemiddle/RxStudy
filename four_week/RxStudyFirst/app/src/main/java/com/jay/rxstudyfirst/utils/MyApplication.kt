@@ -2,6 +2,8 @@ package com.jay.rxstudyfirst.utils
 
 import android.app.Application
 import android.util.Log
+import com.facebook.stetho.Stetho
+import com.jay.rxstudyfirst.data.main.source.MainRepository
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import java.io.IOException
@@ -9,10 +11,21 @@ import java.net.SocketException
 
 class MyApplication : Application() {
 
+    lateinit var mainReposiroy: MainRepository
+
     override fun onCreate() {
         super.onCreate()
 
+        initStetho()
         rxErrorHandler()
+    }
+
+    private fun inject() {
+
+    }
+
+    private fun initStetho() {
+        Stetho.initializeWithDefaults(this)
     }
 
     private fun rxErrorHandler() {

@@ -12,5 +12,5 @@ import io.reactivex.Completable
 interface MovieDao {
 
     @Insert(onConflict = REPLACE)
-    fun test(movies: List<Movie>): Completable
+    fun insertMovies(movies: List<Movie>): Completable
 }

@@ -48,12 +48,13 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                with(response.data.movies) {
-                    when {
-                        this.isNullOrEmpty() -> _fail.value = "검색 결과가 없습니다"
-                        else -> _movieList.value = response.data.movies
-                    }
-                }
+                println("success: $response")
+//                with(response.data.movies) {
+//                    when {
+//                        this.isNullOrEmpty() -> _fail.value = "검색 결과가 없습니다"
+//                        else -> _movieList.value = response.data.movies
+//                    }
+//                }
             }, { t ->
                 _fail.value = t.message
             }).addTo(compositeDisposable)

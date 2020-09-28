@@ -5,5 +5,5 @@ import io.reactivex.Completable
 
 interface MainLocalDataSource {
 
-    //fun test(movies: List<Movie>): Completable
+    fun insertMovies(movies: List<Movie>): Completable
 }

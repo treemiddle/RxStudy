@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private fun initView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         service = ApiService.api
-        dao = JDataBase.Factory.create(applicationContext).movieDao()
+        dao = JDataBase.Factory.create(application).movieDao()
         remote = MainRemoteDataSourceImpl(service)
         local = MainLocalDataSourceImpl(dao)
         repository = MainRepositoryImpl(remote, local)
@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity() {
     private fun initViewModelObserving() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
-                println("===== movieList Size: ${it.size}")
                 //adapter.setMovieItem(it)
                 adapter.submitList(it)
             })

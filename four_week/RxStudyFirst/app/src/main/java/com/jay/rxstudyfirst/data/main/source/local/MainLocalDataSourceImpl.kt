@@ -8,7 +8,8 @@ class MainLocalDataSourceImpl(
     private val dao: MovieDao
 ) : MainLocalDataSource {
 
-//    override fun test(movies: List<Movie>): Completable {
-//        return dao.test(movies)
-//    }
+    override fun insertMovies(movies: List<Movie>): Completable {
+        println("local movies: ${movies.size}")
+        return dao.insertMovies(movies)
+    }
 }
