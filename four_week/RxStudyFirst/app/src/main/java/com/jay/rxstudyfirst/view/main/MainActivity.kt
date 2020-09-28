@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
                 println("===== movieList Size: ${it.size}")
-                adapter.setMovieItem(it)
+                //adapter.setMovieItem(it)
+                adapter.submitList(it)
             })
             fail.observe(this@MainActivity, Observer {
                 toastMessage(it)
@@ -70,8 +71,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        adapter = MainAdapter { movie ->
-            adapter.onClickHasLiked(movie)
+        adapter = MainAdapter { movie, position ->
+            println("position: $position, movie: ${movie.hasLiked}")
         }
 
         binding.recyclerView.adapter = adapter

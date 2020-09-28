@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.jay.rxstudyfirst.data.Movie
@@ -16,38 +18,43 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
+typealias recyclerviewItemClick = ((Movie, Int) -> Unit)
+
 class MainAdapter(
-    private val click: (Movie) -> Unit
-) : RecyclerView.Adapter<MainAdapter.MovieViewHolder>() {
+    private val onItemClick: recyclerviewItemClick? = null
+) : ListAdapter<Movie, MainAdapter.MovieHolder>(object : DiffUtil.ItemCallback<Movie>() {
 
-    private val compositeDisposable = CompositeDisposable()
-    private val hasLikeSubject = PublishSubject.create<Unit>()
-    private val items = mutableListOf<Movie>()
+    override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+        return oldItem == newItem
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = ItemMovieBinding.inflate(layoutInflater, parent, false)
+    override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+        return oldItem.hasLiked == newItem.hasLiked
+    }
 
-        return MovieViewHolder(binding).also {
-            binding.root.setOnClickListener { position ->
-                hasLikeSubject.onNext(Unit)
-                click(items[it.adapterPosition])
+}) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieHolder {
+        return MovieHolder.from(parent).also { holder ->
+            if (onItemClick == null) {
+                return@also
+            } else {
+                holder.itemView.setOnClickListener { _ ->
+                    val currentItem = currentList.getOrNull(holder.adapterPosition)
+                        ?: return@setOnClickListener
+
+                    currentItem.hasLiked = !currentItem.hasLiked
+                    onItemClick.invoke(currentItem, holder.adapterPosition)
+                }
             }
         }
     }
 
-    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.bind(items[position])
+    override fun onBindViewHolder(holder: MovieHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount() = items.size
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        compositeDisposable.clear()
-        super.onDetachedFromRecyclerView(recyclerView)
-    }
-
-    inner class MovieViewHolder(
+    class MovieHolder(
         private val binding: ItemMovieBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -55,25 +62,14 @@ class MainAdapter(
             binding.movie = movie
             binding.executePendingBindings()
         }
-    }
 
-    fun onClickHasLiked(movie: Movie) {
-        hasLikeSubject.map { System.currentTimeMillis() }
-            .buffer(2, 1)
-            .map { val (first, second) = it; first to second }
-            .filter { (first, second) -> second - first < 1_000 }
-            .subscribe { movie.hasLiked = !movie.hasLiked }
-            .let(compositeDisposable::add)
-    }
+        companion object {
+            fun from(parent: ViewGroup) : MovieHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ItemMovieBinding.inflate(layoutInflater, parent, false)
 
-    fun setMovieItem(movies: List<Movie>) {
-        clear()
-        this.items.addAll(movies)
-        notifyDataSetChanged()
-    }
-
-    fun clear() {
-        this.items.clear()
-        notifyDataSetChanged()
+                return MovieHolder(binding)
+            }
+        }
     }
 }
