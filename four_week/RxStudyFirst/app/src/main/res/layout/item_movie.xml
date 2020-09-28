@@ -1,82 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:padding="10dp"
-    android:background="@drawable/bg_underlinge"
-    android:layout_height="wrap_content">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guide_line"
-        android:layout_width="wrap_content"
+    <data>
+
+        <variable
+            name="movie"
+            type="com.jay.rxstudyfirst.data.Movie" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="130dp" />
+        android:background="@drawable/bg_underlinge"
+        android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/iv_poster"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guide_line"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="130dp" />
 
-    <TextView
-        android:id="@+id/tv_movie_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="영화 제목" />
+        <ImageView
+            android:id="@+id/iv_poster"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guide_line"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            bind:setMoviePoster="@{movie.poster}" />
 
-    <TextView
-        android:id="@+id/tv_movie_year"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toBottomOf="@id/tv_movie_name"
-        tools:text="영화 출시일" />
+        <ImageView
+            android:id="@+id/iv_hasliked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/iv_poster"
+            app:layout_constraintEnd_toEndOf="@id/iv_poster"
+            bind:setHasLiked="@{movie.hasLiked}"
+            tools:srcCompat="@drawable/ic_unlike" />
 
-    <TextView
-        android:id="@+id/tv_movie_genres"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toBottomOf="@id/tv_movie_year"
-        tools:text="장르 " />
+        <TextView
+            android:id="@+id/tv_movie_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@{movie.title}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_line"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="영화 제목" />
 
-    <androidx.appcompat.widget.AppCompatRatingBar
-        android:id="@+id/rating_bar"
-        style="?attr/ratingBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:stepSize="0.1"
-        android:numStars="10"
-        android:layout_marginTop="5dp"
-        app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toBottomOf="@id/tv_movie_genres" />
+        <TextView
+            android:id="@+id/tv_movie_year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_line"
+            app:layout_constraintTop_toBottomOf="@id/tv_movie_name"
+            bind:setMovieYear="@{movie.year}"
+            tools:text="영화 출시일" />
 
-    <TextView
-        android:id="@+id/tv_movie_summary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guide_line"
-        app:layout_constraintTop_toBottomOf="@id/rating_bar"
-        tools:text="줄거리" />
+        <TextView
+            android:id="@+id/tv_movie_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_line"
+            app:layout_constraintTop_toBottomOf="@id/tv_movie_year"
+            bind:setMovieGenres="@{movie.genres}"
+            tools:text="장르 " />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatRatingBar
+            android:id="@+id/rating_bar"
+            style="?attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:numStars="10"
+            android:stepSize="0.1"
+            app:layout_constraintStart_toEndOf="@id/guide_line"
+            app:layout_constraintTop_toBottomOf="@id/tv_movie_genres"
+            bind:setMovieRating="@{movie.rating}" />
+
+        <TextView
+            android:id="@+id/tv_movie_summary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@{movie.summary}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_line"
+            app:layout_constraintTop_toBottomOf="@id/rating_bar"
+            tools:text="줄거리" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

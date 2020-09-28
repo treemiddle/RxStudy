@@ -10,19 +10,27 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.R
+import com.jay.rxstudyfirst.databinding.ItemMovieBinding
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 class MainAdapter(
     private val click: (Movie) -> Unit
 ) : RecyclerView.Adapter<MainAdapter.MovieViewHolder>() {
 
+    private val compositeDisposable = CompositeDisposable()
+    private val hasLikeSubject = PublishSubject.create<Unit>()
     private val items = mutableListOf<Movie>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.item_movie, parent, false)
+        val binding = ItemMovieBinding.inflate(layoutInflater, parent, false)
 
-        return MovieViewHolder(view).also {
-            view.setOnClickListener { position ->
+        return MovieViewHolder(binding).also {
+            binding.root.setOnClickListener { position ->
+                hasLikeSubject.onNext(Unit)
                 click(items[it.adapterPosition])
             }
         }
@@ -34,27 +42,28 @@ class MainAdapter(
 
     override fun getItemCount() = items.size
 
-    inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val movieName = itemView.findViewById<TextView>(R.id.tv_movie_name)
-        private val movieYear = itemView.findViewById<TextView>(R.id.tv_movie_year)
-        private val moviePoster = itemView.findViewById<ImageView>(R.id.iv_poster)
-        private val movieGenres = itemView.findViewById<TextView>(R.id.tv_movie_genres)
-        private val movieSummary = itemView.findViewById<TextView>(R.id.tv_movie_summary)
-        private val movieScore = itemView.findViewById<RatingBar>(R.id.rating_bar)
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        compositeDisposable.clear()
+        super.onDetachedFromRecyclerView(recyclerView)
+    }
+
+    inner class MovieViewHolder(
+        private val binding: ItemMovieBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movie: Movie) {
-            with(movie) {
-                Glide.with(itemView).load(poster)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .into(moviePoster)
-                movieName.text = title
-                movieYear.text = year.toString()
-                movieGenres.text = genres?.joinToString(" | ")
-                movieSummary.text = summary
-                movieScore.rating = rating ?: 0f
-            }
+            binding.movie = movie
+            binding.executePendingBindings()
         }
+    }
+
+    fun onClickHasLiked(movie: Movie) {
+        hasLikeSubject.map { System.currentTimeMillis() }
+            .buffer(2, 1)
+            .map { val (first, second) = it; first to second }
+            .filter { (first, second) -> second - first < 1_000 }
+            .subscribe { movie.hasLiked = !movie.hasLiked }
+            .let(compositeDisposable::add)
     }
 
     fun setMovieItem(movies: List<Movie>) {

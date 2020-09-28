@@ -71,8 +71,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         adapter = MainAdapter { movie ->
-            toastMessage("$movie")
-            println("$movie")
+            adapter.onClickHasLiked(movie)
         }
 
         binding.recyclerView.adapter = adapter
