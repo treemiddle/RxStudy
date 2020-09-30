@@ -43,7 +43,7 @@ class MainAdapter(
                     val currentItem = currentList.getOrNull(holder.adapterPosition)
                         ?: return@setOnClickListener
 
-                    currentItem.hasLiked = !currentItem.hasLiked
+                    //currentItem.hasLiked = !currentItem.hasLiked
                     onItemClick.invoke(currentItem, holder.adapterPosition)
                 }
             }

@@ -54,13 +54,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-//        service = ApiService.api
-//        dao = JDataBase.Factory.create(application).movieDao()
-//        remote = MainRemoteDataSourceImpl(service)
-//        local = MainLocalDataSourceImpl(dao)
-//        repository = MainRepositoryImpl(remote, local)
-//        vm = MainViewModel(repository)
-
         binding.vm = vm
         binding.lifecycleOwner = this
     }
@@ -68,18 +61,20 @@ class MainActivity : AppCompatActivity() {
     private fun initViewModelObserving() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
-                //adapter.setMovieItem(it)
                 adapter.submitList(it)
             })
             fail.observe(this@MainActivity, Observer {
                 toastMessage(it)
+            })
+            moviePosition.observe(this@MainActivity, Observer { likePosition ->
+                adapter.notifyItemChanged(likePosition)
             })
         }
     }
 
     private fun initAdapter() {
         adapter = MainAdapter { movie, position ->
-            println("position: $position, movie: ${movie.hasLiked}")
+            vm.hasLiked(movie, position)
         }
 
         binding.recyclerView.adapter = adapter

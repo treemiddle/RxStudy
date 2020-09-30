@@ -81,3 +81,7 @@ Xapp/src/main/java/com/jay/rxstudyfirst/data/main/source/local/MainLocalDataSour
 Tapp/src/main/java/com/jay/rxstudyfirst/data/main/source/local/MainLocalDataSource.kt,e/9/e94955b9d82b8fbfdcc7bcbe7a6b6d71db9c9067
 q
 Aapp/src/main/java/com/jay/rxstudyfirst/data/database/JDataBase.kt,a/c/ac73424d932072e07f0db1d61af5ad079a06eb63
+e
+5app/src/main/java/com/jay/rxstudyfirst/utils/Utils.kt,8/e/8ee9db892c8df0509e588320a9d5d29d776d6c41
+o
+?app/src/main/java/com/jay/rxstudyfirst/utils/BindingAdapters.kt,c/e/ce5352b0ac590b3fabbc779640e9fc36a240d5d9

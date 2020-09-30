@@ -22,42 +22,58 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
     private val onSearchClick = PublishSubject.create<Unit>()
+    private val movieLiked = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
     private val _movieList = SingleLiveEvent<List<Movie>>()
     private val _fail = SingleLiveEvent<String>()
+    private val _moviePosition = MutableLiveData<Int>()
 
     val movieList: LiveData<List<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
+    val moviePosition: LiveData<Int> get() = _moviePosition
+
+    private lateinit var currentMovie: Movie
+    private var currentPosition: Int? = null
 
     init {
         rxBind()
+        mainRepository.deleteAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {  }
+            .let(compositeDisposable::add)
     }
 
     private fun getMovie(query: String) {
-        disposable?.let {
-            if (!it.isDisposed) {
-                it.dispose()
-            }
-        }
+//        disposable?.let {
+//            if (!it.isDisposed) {
+//                it.dispose()
+//            }
+//        }
+//
+//        disposable = mainRepository.getMovie(query)
 
-        disposable = mainRepository.getMovie(query)
+        mainRepository.getMovie(query)
+            .switchMap { mainRepository.getMovie(query) }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                println("success: $response")
-//                with(response.data.movies) {
-//                    when {
-//                        this.isNullOrEmpty() -> _fail.value = "검색 결과가 없습니다"
-//                        else -> _movieList.value = response.data.movies
-//                    }
-//                }
+                println("vm: $response")
+                with(response) {
+                    when {
+                        this.isNullOrEmpty() -> _fail.value = "검색 결과가 없습니다"
+                        else -> _movieList.value = response
+                    }
+                }
             }, { t ->
+                println("error: ${t.message}")
                 _fail.value = t.message
             }).addTo(compositeDisposable)
+
     }
 
     fun getMoreMovies(page: Int) {
@@ -68,12 +84,12 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                with(response.data.movies) {
+                with(response) {
                     when {
                         this.isNullOrEmpty() -> _fail.value = "??????"
                         else -> {
                             val pagingList = _movieList.value as ArrayList<Movie>
-                            pagingList.addAll(response.data.movies)
+                            pagingList.addAll(response)
                             _movieList.value = pagingList
                         }
                     }
@@ -117,6 +133,29 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 if (query.isNullOrEmpty()) showNullQuery()
                 else getMovie(query)
             }
+            .addTo(compositeDisposable)
+
+        movieLiked.map { System.currentTimeMillis() }
+            .buffer(2, 1)
+            .map { val (first, second) = it; first to second }
+            .filter { (first, second) -> second - first < 1_000 }
+            .subscribe { movieLiked(currentMovie) }
+            .addTo(compositeDisposable)
+    }
+
+    fun hasLiked(movie: Movie, position: Int) {
+        movieLiked.onNext(Unit)
+        currentMovie = movie
+        currentPosition = position
+    }
+
+    private fun movieLiked(movie: Movie) {
+        movie.hasLiked = !movie.hasLiked
+
+        mainRepository.movieLike(movie)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { _moviePosition.value = currentPosition }
             .addTo(compositeDisposable)
     }
 
