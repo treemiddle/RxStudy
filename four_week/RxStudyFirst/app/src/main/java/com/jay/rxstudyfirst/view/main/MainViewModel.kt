@@ -17,7 +17,7 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
-    private val TAG = javaClass.simpleName
+
     private val compositeDisposable = CompositeDisposable()
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
@@ -45,7 +45,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
 
     init {
         rxBind()
-        deleteAllMovies()
+        //deleteAllMovies()
     }
 
     private fun getMovie(query: String) {
