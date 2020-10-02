@@ -11,26 +11,24 @@ class MainRepositoryImpl(
     private val remoteDataSource: MainRemoteDataSource,
     private val localDataSource: MainLocalDataSource
 ) : MainRepository {
-    private val TAG = javaClass.simpleName
 
     override fun getMovie(query: String): Flowable<List<Movie>> {
         return localDataSource.getMovies(query)
             .flatMapPublisher { cacheMovies ->
-                if (cacheMovies.isEmpty()) {
+                if (cacheMovies.isNotEmpty()) {
+                    Flowable.just(cacheMovies)
+                } else {
                     getRemoteMovies(query)
                         .toFlowable()
-                } else {
-                    Flowable.just(cacheMovies)
                 }
             }
     }
 
     override fun getMoreMovies(query: String, page: Int): Single<List<Movie>> {
         return remoteDataSource.getMovie(query, page)
-            .map { it.data.movies }
             .flatMap { movies ->
-                if (movies.isEmpty()) {
-                    Single.error(IllegalStateException("Anymore!"))
+                if (movies.data.movies.isNullOrEmpty()) {
+                    Single.error(IllegalStateException("Last Page!"))
                 } else {
                     getRemotePagingMovies(query, page)
                 }
@@ -47,26 +45,24 @@ class MainRepositoryImpl(
 
     private fun getRemoteMovies(query: String): Single<List<Movie>> {
         return remoteDataSource.getMovie(query)
-            .map { it.data.movies }
             .flatMap { movies ->
-                if (movies.isEmpty()) {
-                    Single.error(IllegalStateException("UnKnown Error"))
+                if (movies.data.movies.isNullOrEmpty()) {
+                    Single.error(IllegalStateException("No Result"))
                 } else {
-                    localDataSource.insertMovies(movies)
-                        .andThen(Single.just(movies))
+                    localDataSource.insertMovies(movies.data.movies)
+                        .andThen(Single.just(movies.data.movies))
                 }
             }
     }
 
     private fun getRemotePagingMovies(query: String, page: Int): Single<List<Movie>> {
         return remoteDataSource.getMovie(query, page)
-            .map { it.data.movies }
             .flatMap { pagingMovies ->
-                if (pagingMovies.isEmpty()) {
-                    Single.error(IllegalStateException("AnyMore!"))
+                if (pagingMovies.data.movies.isNullOrEmpty()) {
+                    Single.error(IllegalStateException("No Paging Result!"))
                 } else {
-                    localDataSource.insertMovies(pagingMovies)
-                        .andThen(Single.just(pagingMovies))
+                    localDataSource.insertMovies(pagingMovies.data.movies)
+                        .andThen(Single.just(pagingMovies.data.movies))
                 }
             }
     }

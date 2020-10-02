@@ -10,6 +10,7 @@ import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
 import com.jay.rxstudyfirst.utils.MyApplication
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private val TAG = javaClass.simpleName
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         initView()
         initViewModelObserving()
         initAdapter()
+        initRefresh()
         initTextWatcher()
     }
 
@@ -56,11 +58,15 @@ class MainActivity : AppCompatActivity() {
                 adapter.notifyItemChanged(likePosition)
             })
             paging.observe(this@MainActivity, Observer {
+                toastMessage("영화를 더 불러왔습니다")
                 oldList.addAll(it)
 
                 newList = mutableListOf()
                 newList.addAll(oldList)
                 adapter.submitList(newList)
+            })
+            swipe.observe(this@MainActivity, Observer {
+                hideRefresh()
             })
         }
     }
@@ -71,6 +77,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.recyclerView.adapter = adapter
+    }
+
+    private fun initRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            vm.movieRefresh()
+        }
+    }
+
+    private fun hideRefresh() {
+        binding.swipeRefresh.isRefreshing = false
     }
 
     private fun initTextWatcher() {

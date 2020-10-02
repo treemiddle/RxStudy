@@ -18,24 +18,26 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
     private val TAG = javaClass.simpleName
-
     private val compositeDisposable = CompositeDisposable()
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
     private val onSearchClick = PublishSubject.create<Unit>()
     private val movieLiked = PublishSubject.create<Unit>()
+    private val movieRefresh = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
     private val _movieList = MutableLiveData<MutableList<Movie>>()
     private val _fail = SingleLiveEvent<String>()
     private val _moviePosition = MutableLiveData<Int>()
     private val _paging = MutableLiveData<List<Movie>>()
+    private val _swipe = SingleLiveEvent<Unit>()
 
     val movieList: LiveData<MutableList<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
     val moviePosition: LiveData<Int> get() = _moviePosition
     val paging: LiveData<List<Movie>> get() = _paging
+    val swipe: LiveData<Unit> get() = _swipe
 
     private lateinit var currentMovie: Movie
     private var currentPosition: Int? = null
@@ -121,6 +123,20 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .filter { (first, second) -> second - first < 1_000 }
             .subscribe { movieLiked(currentMovie) }
             .addTo(compositeDisposable)
+
+        movieRefresh.debounce(1_000, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { !querySubject.value.isNullOrEmpty() }
+            .subscribe { result ->
+                if (result) {
+                    getMovie(querySubject.value!!)
+                } else {
+                    _fail.value = "불러올 데이터가 없습니다"
+                }
+
+                _swipe.call()
+            }
+            .addTo(compositeDisposable)
     }
 
     fun hasLiked(movie: Movie, position: Int) {
@@ -143,8 +159,12 @@ class MainViewModel(private val mainRepository: MainRepository) {
         mainRepository.deleteAll()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {  }
+            .subscribe { }
             .let(compositeDisposable::add)
+    }
+
+    fun movieRefresh() {
+        movieRefresh.onNext(Unit)
     }
 
     private fun showLoading() {
