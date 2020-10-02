@@ -13,13 +13,14 @@ interface ApiInterface {
 
     @GET("list_movies.json")
     fun getMovie(
-        @Query("query_term") query: String
-    ): Single<MovieResponse>
-
-    @GET("list_movies.json")
-    fun getMoreMovies(
         @Query("query_term") query: String,
         @Query("page") page: Int
     ): Single<MovieResponse>
+
+//    @GET("list_movies.json")
+//    fun getMoreMovies(
+//        @Query("query_term") query: String,
+//        @Query("page") page: Int
+//    ): <MovieResponse>
 
 }

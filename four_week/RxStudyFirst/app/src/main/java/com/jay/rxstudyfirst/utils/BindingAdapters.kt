@@ -1,10 +1,14 @@
 package com.jay.rxstudyfirst.utils
 
+import android.util.Log
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
+import com.jay.rxstudyfirst.view.main.MainViewModel
 
 @BindingAdapter("setMoviePoster")
 fun setMoviePoster(iv: ImageView, url: String?) {
@@ -37,4 +41,14 @@ fun setMovieGenres(tv: TextView, genres: List<String>?) {
 @BindingAdapter("setMovieRating")
 fun setMovieRating(rb: RatingBar, rating: Float?) {
     rb.rating = rating ?: 0f
+}
+
+@BindingAdapter("endlessScroll")
+fun RecyclerView.endlessScroll(vm: MainViewModel) {
+    val srcollListener = object : EndlessRecyclerViewScrollListener(layoutManager as LinearLayoutManager) {
+        override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+            vm.getMoreMovies(page)
+        }
+    }
+    addOnScrollListener(srcollListener)
 }

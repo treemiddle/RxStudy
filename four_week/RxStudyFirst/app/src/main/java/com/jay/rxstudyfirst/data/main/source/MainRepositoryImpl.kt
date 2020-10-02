@@ -11,6 +11,7 @@ class MainRepositoryImpl(
     private val remoteDataSource: MainRemoteDataSource,
     private val localDataSource: MainLocalDataSource
 ) : MainRepository {
+    private val TAG = javaClass.simpleName
 
     override fun getMovie(query: String): Flowable<List<Movie>> {
         return localDataSource.getMovies(query)
@@ -25,7 +26,15 @@ class MainRepositoryImpl(
     }
 
     override fun getMoreMovies(query: String, page: Int): Single<List<Movie>> {
-        return remoteDataSource.getMoreMovies(query, page)
+        return remoteDataSource.getMovie(query, page)
+            .map { it.data.movies }
+            .flatMap { movies ->
+                if (movies.isEmpty()) {
+                    Single.error(IllegalStateException("Anymore!"))
+                } else {
+                    getRemotePagingMovies(query, page)
+                }
+            }
     }
 
     override fun movieLike(movie: Movie): Completable {
@@ -38,9 +47,27 @@ class MainRepositoryImpl(
 
     private fun getRemoteMovies(query: String): Single<List<Movie>> {
         return remoteDataSource.getMovie(query)
+            .map { it.data.movies }
             .flatMap { movies ->
-                localDataSource.insertMovies(movies)
-                    .andThen(Single.just(movies))
+                if (movies.isEmpty()) {
+                    Single.error(IllegalStateException("UnKnown Error"))
+                } else {
+                    localDataSource.insertMovies(movies)
+                        .andThen(Single.just(movies))
+                }
+            }
+    }
+
+    private fun getRemotePagingMovies(query: String, page: Int): Single<List<Movie>> {
+        return remoteDataSource.getMovie(query, page)
+            .map { it.data.movies }
+            .flatMap { pagingMovies ->
+                if (pagingMovies.isEmpty()) {
+                    Single.error(IllegalStateException("AnyMore!"))
+                } else {
+                    localDataSource.insertMovies(pagingMovies)
+                        .andThen(Single.just(pagingMovies))
+                }
             }
     }
 }

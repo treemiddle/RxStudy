@@ -29,7 +29,7 @@ class MainAdapter(
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return oldItem.hasLiked == newItem.hasLiked
+        return oldItem.title == newItem.title
     }
 
 }) {
@@ -43,7 +43,6 @@ class MainAdapter(
                     val currentItem = currentList.getOrNull(holder.adapterPosition)
                         ?: return@setOnClickListener
 
-                    //currentItem.hasLiked = !currentItem.hasLiked
                     onItemClick.invoke(currentItem, holder.adapterPosition)
                 }
             }

@@ -4,37 +4,22 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
-import com.jay.rxstudyfirst.api.ApiInterface
-import com.jay.rxstudyfirst.api.ApiService
-import com.jay.rxstudyfirst.data.database.JDataBase
-import com.jay.rxstudyfirst.data.database.MovieDao
-import com.jay.rxstudyfirst.data.main.source.MainRepository
-import com.jay.rxstudyfirst.data.main.source.MainRepositoryImpl
-import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
-import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSourceImpl
-import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
-import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSourceImpl
+import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
-import com.jay.rxstudyfirst.utils.EndlessRecyclerViewScrollListener
 import com.jay.rxstudyfirst.utils.MyApplication
 
 class MainActivity : AppCompatActivity() {
-
+    private val TAG = javaClass.simpleName
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
-//    private lateinit var dao: MovieDao
-//    private lateinit var repository: MainRepository
-//    private lateinit var remote: MainRemoteDataSource
-//    private lateinit var local: MainLocalDataSource
-//    private lateinit var service: ApiInterface
     private lateinit var myApplication: MyApplication
+
+    private var newList = mutableListOf<Movie>()
+    private var oldList = mutableListOf<Movie>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         initViewModelObserving()
         initAdapter()
         initTextWatcher()
-        initScrollListener()
     }
 
     private fun inject() {
@@ -62,12 +46,21 @@ class MainActivity : AppCompatActivity() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
                 adapter.submitList(it)
+                oldList.addAll(it)
+                newList.addAll(it)
             })
             fail.observe(this@MainActivity, Observer {
                 toastMessage(it)
             })
             moviePosition.observe(this@MainActivity, Observer { likePosition ->
                 adapter.notifyItemChanged(likePosition)
+            })
+            paging.observe(this@MainActivity, Observer {
+                oldList.addAll(it)
+
+                newList = mutableListOf()
+                newList.addAll(oldList)
+                adapter.submitList(newList)
             })
         }
     }
@@ -82,19 +75,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTextWatcher() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
-    }
-
-    private fun initScrollListener() {
-        binding.recyclerView.addOnScrollListener(
-            object : EndlessRecyclerViewScrollListener(
-                layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-            ) {
-                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                    println("===== more ===== page: $page, total: $totalItemsCount")
-                    vm.getMoreMovies(page+1)
-                }
-            }
-        )
     }
 
     private fun toastMessage(message: String) {

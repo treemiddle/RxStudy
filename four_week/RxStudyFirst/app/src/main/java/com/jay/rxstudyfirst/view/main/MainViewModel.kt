@@ -17,6 +17,7 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
+    private val TAG = javaClass.simpleName
 
     private val compositeDisposable = CompositeDisposable()
     private var disposable: Disposable? = null
@@ -25,75 +26,54 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private val movieLiked = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
-    private val _movieList = SingleLiveEvent<List<Movie>>()
+    private val _movieList = MutableLiveData<MutableList<Movie>>()
     private val _fail = SingleLiveEvent<String>()
     private val _moviePosition = MutableLiveData<Int>()
+    private val _paging = MutableLiveData<List<Movie>>()
 
-    val movieList: LiveData<List<Movie>> get() = _movieList
+    val movieList: LiveData<MutableList<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
     val moviePosition: LiveData<Int> get() = _moviePosition
+    val paging: LiveData<List<Movie>> get() = _paging
 
     private lateinit var currentMovie: Movie
     private var currentPosition: Int? = null
 
+
     init {
         rxBind()
-        mainRepository.deleteAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {  }
-            .let(compositeDisposable::add)
+        deleteAllMovies()
     }
 
     private fun getMovie(query: String) {
-//        disposable?.let {
-//            if (!it.isDisposed) {
-//                it.dispose()
-//            }
-//        }
-//
-//        disposable = mainRepository.getMovie(query)
+        disposable?.let {
+            if (!it.isDisposed) {
+                it.dispose()
+            }
+        }
 
-        mainRepository.getMovie(query)
-            .switchMap { mainRepository.getMovie(query) }
+        disposable = mainRepository.getMovie(query)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                println("vm: $response")
-                with(response) {
-                    when {
-                        this.isNullOrEmpty() -> _fail.value = "검색 결과가 없습니다"
-                        else -> _movieList.value = response
-                    }
-                }
+                _movieList.value = response as MutableList<Movie>
             }, { t ->
-                println("error: ${t.message}")
                 _fail.value = t.message
             }).addTo(compositeDisposable)
 
     }
 
     fun getMoreMovies(page: Int) {
-        println("===== getMoreMovies: $page =====")
         mainRepository.getMoreMovies(querySubject.value!!, page)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                with(response) {
-                    when {
-                        this.isNullOrEmpty() -> _fail.value = "??????"
-                        else -> {
-                            val pagingList = _movieList.value as ArrayList<Movie>
-                            pagingList.addAll(response)
-                            _movieList.value = pagingList
-                        }
-                    }
-                }
+                _paging.value = response
             }, { t ->
                 _fail.value = t.message
             }).addTo(compositeDisposable)
@@ -157,6 +137,14 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { _moviePosition.value = currentPosition }
             .addTo(compositeDisposable)
+    }
+
+    private fun deleteAllMovies() {
+        mainRepository.deleteAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {  }
+            .let(compositeDisposable::add)
     }
 
     private fun showLoading() {
