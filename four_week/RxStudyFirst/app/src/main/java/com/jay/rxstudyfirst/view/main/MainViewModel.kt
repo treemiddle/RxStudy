@@ -1,6 +1,5 @@
 package com.jay.rxstudyfirst.view.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jay.rxstudyfirst.data.Movie
@@ -118,19 +117,18 @@ class MainViewModel(private val mainRepository: MainRepository) {
             }
             .addTo(compositeDisposable)
 
-        movieRefresh.debounce(1_000, TimeUnit.MILLISECONDS)
+        movieRefresh.throttleFirst(1_000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .map { !querySubject.value.isNullOrEmpty() }
-            .subscribe { result ->
+            .subscribe{ result ->
                 if (result) {
                     getMovie(querySubject.value!!)
                 } else {
                     _fail.value = "불러올 데이터가 없습니다"
                 }
-
                 _swipe.call()
-            }
-            .addTo(compositeDisposable)
+            }.addTo(compositeDisposable)
+
     }
 
     fun hasLiked(movie: Movie, position: Int) {
