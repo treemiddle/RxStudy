@@ -1,6 +1,7 @@
 package com.jay.rxstudyfirst.view.main
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -13,7 +14,7 @@ import com.jay.rxstudyfirst.utils.MyApplication
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
+    private val TAG = javaClass.simpleName
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel

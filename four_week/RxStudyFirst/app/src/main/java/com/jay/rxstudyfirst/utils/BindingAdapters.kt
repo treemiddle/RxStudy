@@ -47,7 +47,7 @@ fun setMovieRating(rb: RatingBar, rating: Float?) {
 fun RecyclerView.endlessScroll(vm: MainViewModel) {
     val srcollListener = object : EndlessRecyclerViewScrollListener(layoutManager as LinearLayoutManager) {
         override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-            vm.getMoreMovies(page)
+            vm.getMoreMovies(vm.getPagingQuery(), page)
         }
     }
     addOnScrollListener(srcollListener)

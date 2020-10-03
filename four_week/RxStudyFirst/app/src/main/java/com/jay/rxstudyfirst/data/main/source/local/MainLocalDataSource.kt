@@ -1,16 +1,13 @@
 package com.jay.rxstudyfirst.data.main.source.local
 
-import com.jay.rxstudyfirst.data.Movie
+import com.jay.rxstudyfirst.data.MovieLikeEntity
 import io.reactivex.Completable
 import io.reactivex.Single
 
 interface MainLocalDataSource {
 
-    fun insertMovies(movies: List<Movie>): Completable
+    fun saveMovie(movieLike: MovieLikeEntity): Completable
 
-    fun getMovies(query: String): Single<List<Movie>>
+    fun getMovieLike(id: Long): Single<MovieLikeEntity>
 
-    fun movieLike(movie: Movie): Completable
-
-    fun deleteAll(): Completable
 }

@@ -31,7 +31,7 @@ class MyApplication : Application() {
         val database = JDataBase.Factory.create(applicationContext)
 
         val mainRemoteDataSource = MainRemoteDataSourceImpl(networkService)
-        val mainLocalDataSource = MainLocalDataSourceImpl(database.movieDao())
+        val mainLocalDataSource = MainLocalDataSourceImpl(database.movieLikeDao())
 
         mainReposiroy = MainRepositoryImpl(mainRemoteDataSource, mainLocalDataSource)
     }

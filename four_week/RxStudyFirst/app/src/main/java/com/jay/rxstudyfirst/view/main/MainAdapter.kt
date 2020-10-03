@@ -1,22 +1,12 @@
 package com.jay.rxstudyfirst.view.main
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.RatingBar
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.jay.rxstudyfirst.data.Movie
-import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ItemMovieBinding
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
 
 typealias recyclerviewItemClick = ((Movie, Int) -> Unit)
 
@@ -29,7 +19,7 @@ class MainAdapter(
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return oldItem.title == newItem.title
+        return oldItem.hasLiked == newItem.hasLiked
     }
 
 }) {

@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.jay.rxstudyfirst.data.Movie
+import com.jay.rxstudyfirst.data.MovieLikeEntity
 
-@Database(entities = [Movie::class], version = 1, exportSchema = false)
+@Database(entities = [MovieLikeEntity::class], version = 1, exportSchema = false)
 abstract class JDataBase : RoomDatabase() {
-    abstract fun movieDao(): MovieDao
+    abstract fun movieLikeDao(): MovieLikeDao
 
     object Factory {
         private const val DATABASE_NAME = "jmovie.db"

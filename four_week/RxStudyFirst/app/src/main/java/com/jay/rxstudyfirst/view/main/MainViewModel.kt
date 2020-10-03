@@ -1,8 +1,10 @@
 package com.jay.rxstudyfirst.view.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jay.rxstudyfirst.data.Movie
+import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.MainRepository
 import com.jay.rxstudyfirst.utils.SingleLiveEvent
 import io.reactivex.Observable
@@ -17,7 +19,7 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
-
+    private val TAG = javaClass.simpleName
     private val compositeDisposable = CompositeDisposable()
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
@@ -39,13 +41,12 @@ class MainViewModel(private val mainRepository: MainRepository) {
     val paging: LiveData<List<Movie>> get() = _paging
     val swipe: LiveData<Unit> get() = _swipe
 
-    private lateinit var currentMovie: Movie
+    private var currentMovie: Movie? = null
     private var currentPosition: Int? = null
-
+    private var currentHasLiked: Boolean = false
 
     init {
         rxBind()
-        //deleteAllMovies()
     }
 
     private fun getMovie(query: String) {
@@ -55,7 +56,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
             }
         }
 
-        disposable = mainRepository.getMovie(query)
+        disposable = mainRepository.getMovies(query)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
@@ -66,19 +67,6 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 _fail.value = t.message
             }).addTo(compositeDisposable)
 
-    }
-
-    fun getMoreMovies(page: Int) {
-        mainRepository.getMoreMovies(querySubject.value!!, page)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { showLoading() }
-            .doAfterTerminate { hideLoading() }
-            .subscribe({ response ->
-                _paging.value = response
-            }, { t ->
-                _fail.value = t.message
-            }).addTo(compositeDisposable)
     }
 
     fun onSearchClick() {
@@ -121,7 +109,13 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .buffer(2, 1)
             .map { val (first, second) = it; first to second }
             .filter { (first, second) -> second - first < 1_000 }
-            .subscribe { movieLiked(currentMovie) }
+            .subscribe {
+                currentMovie?.let {
+                    it.hasLiked = !it.hasLiked
+                    currentHasLiked = it.hasLiked
+                    saveMovie(currentHasLiked)
+                }
+            }
             .addTo(compositeDisposable)
 
         movieRefresh.debounce(1_000, TimeUnit.MILLISECONDS)
@@ -145,26 +139,25 @@ class MainViewModel(private val mainRepository: MainRepository) {
         currentPosition = position
     }
 
-    private fun movieLiked(movie: Movie) {
-        movie.hasLiked = !movie.hasLiked
-
-        mainRepository.movieLike(movie)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _moviePosition.value = currentPosition }
-            .addTo(compositeDisposable)
-    }
-
-    private fun deleteAllMovies() {
-        mainRepository.deleteAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { }
-            .let(compositeDisposable::add)
-    }
-
     fun movieRefresh() {
         movieRefresh.onNext(Unit)
+    }
+
+    fun getMoreMovies(query: String, page: Int) {
+        mainRepository.getMovies(query, page)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { showLoading() }
+            .doAfterTerminate { hideLoading() }
+            .subscribe({ response ->
+                _paging.value = response
+            }, { t ->
+                _fail.value = t.message
+            }).addTo(compositeDisposable)
+    }
+
+    fun getPagingQuery(): String {
+        return querySubject.value.toString()
     }
 
     private fun showLoading() {
@@ -174,5 +167,52 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private fun hideLoading() {
         _isLoading.value = false
     }
+    
+    private fun saveMovie(hasLiked: Boolean) {
+        currentMovie?.let {
+            val movieLike = MovieLikeEntity(it.id, hasLiked)
+
+            mainRepository.saveMovieLike(movieLike)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    _moviePosition.value = currentPosition
+                }, { t ->
+                    _fail.value = t.message
+                })
+                .let(compositeDisposable::add)
+        }
+    }
+
+    //    private fun movieLiked(movie: Movie) {
+//        movie.hasLiked = !movie.hasLiked
+//
+//        mainRepository.movieLike(movie)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { _moviePosition.value = currentPosition }
+//            .addTo(compositeDisposable)
+//    }
+
+//    private fun deleteAllMovies() {
+//        mainRepository.deleteAll()
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { }
+//            .let(compositeDisposable::add)
+//    }
+
+    //    fun getMoreMovies(page: Int) {
+//        mainRepository.getMoreMovies(querySubject.value!!, page)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .doOnSubscribe { showLoading() }
+//            .doAfterTerminate { hideLoading() }
+//            .subscribe({ response ->
+//                _paging.value = response
+//            }, { t ->
+//                _fail.value = t.message
+//            }).addTo(compositeDisposable)
+//    }
 
 }

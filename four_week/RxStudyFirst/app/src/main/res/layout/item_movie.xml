@@ -38,9 +38,9 @@
             android:id="@+id/iv_hasliked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            bind:setHasLiked="@{movie.hasLiked}"
             app:layout_constraintBottom_toBottomOf="@id/iv_poster"
             app:layout_constraintEnd_toEndOf="@id/iv_poster"
-            bind:setHasLiked="@{movie.hasLiked}"
             tools:srcCompat="@drawable/ic_unlike" />
 
         <TextView

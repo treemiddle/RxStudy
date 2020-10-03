@@ -1,27 +1,19 @@
 package com.jay.rxstudyfirst.data.main.source.local
 
-import com.jay.rxstudyfirst.data.Movie
-import com.jay.rxstudyfirst.data.database.MovieDao
+import com.jay.rxstudyfirst.data.MovieLikeEntity
+import com.jay.rxstudyfirst.data.database.MovieLikeDao
 import io.reactivex.Completable
 import io.reactivex.Single
 
 class MainLocalDataSourceImpl(
-    private val dao: MovieDao
+    private val dao: MovieLikeDao
 ) : MainLocalDataSource {
 
-    override fun insertMovies(movies: List<Movie>): Completable {
-        return dao.insertMovies(movies)
+    override fun saveMovie(movieLike: MovieLikeEntity): Completable {
+        return dao.saveMovieLike(movieLike)
     }
 
-    override fun getMovies(query: String): Single<List<Movie>> {
-        return dao.getMovies(query)
-    }
-
-    override fun movieLike(movie: Movie): Completable {
-        return dao.movieLike(movie)
-    }
-
-    override fun deleteAll(): Completable {
-        return dao.deleteAll()
+    override fun getMovieLike(id: Long): Single<MovieLikeEntity> {
+        return dao.queryMovie(id)
     }
 }
