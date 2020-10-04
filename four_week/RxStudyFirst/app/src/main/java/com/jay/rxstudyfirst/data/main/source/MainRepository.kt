@@ -10,7 +10,7 @@ interface MainRepository {
 
     fun saveMovieLike(movieLike: MovieLikeEntity): Completable
 
-    fun getMovies(query: String, page: Int = 1): Flowable<List<Movie>>
+    fun getMovies(query: String, page: Int = 1): Single<List<Movie>>
 
 
     //    fun getMovie(query: String): Flowable<List<Movie>>

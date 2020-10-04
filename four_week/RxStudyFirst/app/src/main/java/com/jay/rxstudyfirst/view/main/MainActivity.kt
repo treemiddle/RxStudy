@@ -2,11 +2,15 @@ package com.jay.rxstudyfirst.view.main
 
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.GestureDetector.OnDoubleTapListener
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
@@ -74,7 +78,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         adapter = MainAdapter { movie, position ->
-            vm.hasLiked(movie, position)
+            //vm.hasLiked(movie, position)
+            Log.d(TAG, "initAdapter: $position, $movie")
         }
 
         binding.recyclerView.adapter = adapter

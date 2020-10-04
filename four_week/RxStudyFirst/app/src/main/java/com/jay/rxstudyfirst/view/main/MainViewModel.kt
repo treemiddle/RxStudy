@@ -10,6 +10,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.merge
 import io.reactivex.schedulers.Schedulers
@@ -23,26 +24,24 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
     private val onSearchClick = PublishSubject.create<Unit>()
-    private val movieLiked = PublishSubject.create<Unit>()
+    private val movieLiked = BehaviorSubject.create<Movie>()
     private val movieRefresh = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
-    private val _movieList = MutableLiveData<MutableList<Movie>>()
+    private val _movieList = MutableLiveData<List<Movie>>()
     private val _fail = SingleLiveEvent<String>()
     private val _moviePosition = MutableLiveData<Int>()
     private val _paging = MutableLiveData<List<Movie>>()
     private val _swipe = SingleLiveEvent<Unit>()
 
-    val movieList: LiveData<MutableList<Movie>> get() = _movieList
+    val movieList: LiveData<List<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
     val moviePosition: LiveData<Int> get() = _moviePosition
     val paging: LiveData<List<Movie>> get() = _paging
     val swipe: LiveData<Unit> get() = _swipe
 
-    private var currentMovie: Movie? = null
-    private var currentPosition: Int? = null
-    private var currentHasLiked: Boolean = false
+    private var currentPosition = 0
 
     init {
         rxBind()
@@ -61,7 +60,11 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                _movieList.value = response as MutableList<Movie>
+                if (response.isEmpty()) {
+                    _fail.value = "No Result"
+                } else {
+                    _movieList.value = response as MutableList<Movie>
+                }
             }, { t ->
                 _fail.value = t.message
             }).addTo(compositeDisposable)
@@ -104,36 +107,32 @@ class MainViewModel(private val mainRepository: MainRepository) {
             }
             .addTo(compositeDisposable)
 
-        movieLiked.map { System.currentTimeMillis() }
-            .buffer(2, 1)
-            .map { val (first, second) = it; first to second }
-            .filter { (first, second) -> second - first < 1_000 }
-            .subscribe {
-                currentMovie?.let {
-                    it.hasLiked = !it.hasLiked
-                    currentHasLiked = it.hasLiked
-                    saveMovie(currentHasLiked)
-                }
+        movieRefresh.throttleFirst(1_000, TimeUnit.MILLISECONDS)
+            .withLatestFrom(querySubject, BiFunction<Unit, String, String> { _, x -> x })
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { showLoading() }
+            .switchMapSingle { query ->
+                mainRepository.getMovies(query)
+                    .subscribeOn(Schedulers.io())
             }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { hideLoading() }
+            .subscribe(_movieList::setValue)
             .addTo(compositeDisposable)
 
-        movieRefresh.throttleFirst(1_000, TimeUnit.MILLISECONDS)
+        movieLiked.map { System.currentTimeMillis() }
+            .buffer(2, 1)
             .observeOn(AndroidSchedulers.mainThread())
-            .map { !querySubject.value.isNullOrEmpty() }
-            .subscribe{ result ->
-                if (result) {
-                    getMovie(querySubject.value!!)
-                } else {
-                    _fail.value = "불러올 데이터가 없습니다"
-                }
-                _swipe.call()
-            }.addTo(compositeDisposable)
+            .map { val (first, second) = it; first to second }
+            .filter { (first, second) -> second - first < 1_000 }
+            .map { movieLiked.value }
+            .subscribe { saveMovie(it) }
+            .addTo(compositeDisposable)
 
     }
 
     fun hasLiked(movie: Movie, position: Int) {
-        movieLiked.onNext(Unit)
-        currentMovie = movie
+        movieLiked.onNext(movie)
         currentPosition = position
     }
 
@@ -165,10 +164,10 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private fun hideLoading() {
         _isLoading.value = false
     }
-    
-    private fun saveMovie(hasLiked: Boolean) {
-        currentMovie?.let {
-            val movieLike = MovieLikeEntity(it.id, hasLiked)
+
+    private fun saveMovie(movie: Movie?) {
+        movie?.let {
+            val movieLike = MovieLikeEntity(movie.id, true)
 
             mainRepository.saveMovieLike(movieLike)
                 .subscribeOn(Schedulers.io())
@@ -180,37 +179,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 })
                 .let(compositeDisposable::add)
         }
+
     }
-
-    //    private fun movieLiked(movie: Movie) {
-//        movie.hasLiked = !movie.hasLiked
-//
-//        mainRepository.movieLike(movie)
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { _moviePosition.value = currentPosition }
-//            .addTo(compositeDisposable)
-//    }
-
-//    private fun deleteAllMovies() {
-//        mainRepository.deleteAll()
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { }
-//            .let(compositeDisposable::add)
-//    }
-
-    //    fun getMoreMovies(page: Int) {
-//        mainRepository.getMoreMovies(querySubject.value!!, page)
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .doOnSubscribe { showLoading() }
-//            .doAfterTerminate { hideLoading() }
-//            .subscribe({ response ->
-//                _paging.value = response
-//            }, { t ->
-//                _fail.value = t.message
-//            }).addTo(compositeDisposable)
-//    }
 
 }

@@ -71,8 +71,6 @@ Z
 *app/src/main/res/layout/activity_login.xml,1/f/1f7e901185d74bf05f9fcb38f9ed35ea78cd4c6e
 
 Qapp/src/main/java/com/jay/rxstudyfirst/utils/EndlessRecyclerViewScrollListener.kt,e/8/e8191f4d6a8e9009740504c28b859b14c2734972
-p
-@app/src/main/java/com/jay/rxstudyfirst/data/database/MovieDao.kt,c/5/c5c3e0098ada2e2ac3120ccf9ddef8dbc1752ee7
 ˆ
 Xapp/src/main/java/com/jay/rxstudyfirst/data/main/source/local/MainLocalDataSourceImpl.kt,4/1/41bbd82160591fee3d47404677fb940ba0363965
 „
@@ -83,3 +81,7 @@ e
 5app/src/main/java/com/jay/rxstudyfirst/utils/Utils.kt,8/e/8ee9db892c8df0509e588320a9d5d29d776d6c41
 o
 ?app/src/main/java/com/jay/rxstudyfirst/utils/BindingAdapters.kt,c/e/ce5352b0ac590b3fabbc779640e9fc36a240d5d9
+t
+Dapp/src/main/java/com/jay/rxstudyfirst/data/database/MovieLikeDao.kt,7/a/7ad64d9ece8c5ca08dbec5f2a5734db3d09302a2
+n
+>app/src/main/java/com/jay/rxstudyfirst/data/MovieLikeEntity.kt,2/b/2bbe2612e41ba1620ef1789ce0ee872ac4103bb2

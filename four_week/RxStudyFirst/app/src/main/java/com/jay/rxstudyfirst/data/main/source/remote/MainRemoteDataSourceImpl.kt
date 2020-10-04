@@ -11,7 +11,7 @@ class MainRemoteDataSourceImpl(
 ) : MainRemoteDataSource {
 
     override fun getMovie(query: String, page: Int): Single<MovieResponse> {
-        return remote.getMovie(query, page).map { it }
+        return remote.getMovie(query, page)
     }
 
 }

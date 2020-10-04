@@ -59,7 +59,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_search"
-                bind:endlessScroll="@{vm}"
+                bind:endlessScroll="@{(page) -> vm.getMoreMovies(``, page)}"
                 tools:itemCount="5"
                 tools:listitem="@layout/item_movie" />
 

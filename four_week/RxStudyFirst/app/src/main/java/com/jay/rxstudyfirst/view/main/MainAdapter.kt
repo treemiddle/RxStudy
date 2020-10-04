@@ -1,25 +1,26 @@
 package com.jay.rxstudyfirst.view.main
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.databinding.ItemMovieBinding
+import com.jay.rxstudyfirst.utils.DoubleClickListener
 
 typealias recyclerviewItemClick = ((Movie, Int) -> Unit)
 
 class MainAdapter(
     private val onItemClick: recyclerviewItemClick? = null
 ) : ListAdapter<Movie, MainAdapter.MovieHolder>(object : DiffUtil.ItemCallback<Movie>() {
-
     override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
         return oldItem == newItem
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return oldItem.hasLiked == newItem.hasLiked
+        return oldItem.id == newItem.id
     }
 
 }) {
@@ -29,12 +30,12 @@ class MainAdapter(
             if (onItemClick == null) {
                 return@also
             } else {
-                holder.itemView.setOnClickListener { _ ->
-                    val currentItem = currentList.getOrNull(holder.adapterPosition)
-                        ?: return@setOnClickListener
-
-                    onItemClick.invoke(currentItem, holder.adapterPosition)
-                }
+                holder.itemView.setOnClickListener(object : DoubleClickListener() {
+                    override fun onDoubleClick(v: View) {
+                        val currentItem = currentList[holder.adapterPosition]
+                        onItemClick.invoke(currentItem!!, holder.adapterPosition)
+                    }
+                })
             }
         }
     }
@@ -62,3 +63,5 @@ class MainAdapter(
         }
     }
 }
+
+
