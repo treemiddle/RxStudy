@@ -1,7 +1,6 @@
 package com.jay.rxstudyfirst.view.main
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -20,7 +19,7 @@ class MainAdapter(
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem == newItem
     }
 
 }) {
@@ -31,7 +30,7 @@ class MainAdapter(
                 return@also
             } else {
                 holder.itemView.setOnClickListener(object : DoubleClickListener() {
-                    override fun onDoubleClick(v: View) {
+                    override fun onDoubleClick() {
                         val currentItem = currentList[holder.adapterPosition]
                         onItemClick.invoke(currentItem!!, holder.adapterPosition)
                     }

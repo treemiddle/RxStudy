@@ -2,46 +2,42 @@ package com.jay.rxstudyfirst.view.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.MainRepository
+import com.jay.rxstudyfirst.utils.EndlessRecyclerViewScrollListener
 import com.jay.rxstudyfirst.utils.SingleLiveEvent
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.merge
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
-    private val TAG = javaClass.simpleName
+
     private val compositeDisposable = CompositeDisposable()
     private var disposable: Disposable? = null
     private val querySubject = BehaviorSubject.create<String>()
     private val onSearchClick = PublishSubject.create<Unit>()
     private val movieLiked = BehaviorSubject.create<Movie>()
+    private val moviePosition = BehaviorSubject.create<Int>()
     private val movieRefresh = PublishSubject.create<Unit>()
 
     private val _isLoading = MutableLiveData(false)
     private val _movieList = MutableLiveData<List<Movie>>()
     private val _fail = SingleLiveEvent<String>()
-    private val _moviePosition = MutableLiveData<Int>()
-    private val _paging = MutableLiveData<List<Movie>>()
     private val _swipe = SingleLiveEvent<Unit>()
 
     val movieList: LiveData<List<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
-    val moviePosition: LiveData<Int> get() = _moviePosition
-    val paging: LiveData<List<Movie>> get() = _paging
     val swipe: LiveData<Unit> get() = _swipe
-
-    private var currentPosition = 0
 
     init {
         rxBind()
@@ -63,7 +59,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 if (response.isEmpty()) {
                     _fail.value = "No Result"
                 } else {
-                    _movieList.value = response as MutableList<Movie>
+                    _movieList.value = response
                 }
             }, { t ->
                 _fail.value = t.message
@@ -94,21 +90,10 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .filter { it.length >= 2 }
     }
 
-    private fun rxBind() {
-        val movieQuery = searchButtonClick()
-        val searchClick = searchMovie()
-
-        listOf(movieQuery, searchClick)
-            .merge()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { query ->
-                if (query.isNullOrEmpty()) showNullQuery()
-                else getMovie(query)
-            }
-            .addTo(compositeDisposable)
-
-        movieRefresh.throttleFirst(1_000, TimeUnit.MILLISECONDS)
-            .withLatestFrom(querySubject, BiFunction<Unit, String, String> { _, x -> x })
+    private fun refreshMovie(): Observable<List<Movie>> {
+        return movieRefresh.map { querySubject.value }
+            .filter { it.isNotEmpty() }
+            .throttleFirst(1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { showLoading() }
             .switchMapSingle { query ->
@@ -116,28 +101,48 @@ class MainViewModel(private val mainRepository: MainRepository) {
                     .subscribeOn(Schedulers.io())
             }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext { hideLoading() }
-            .subscribe(_movieList::setValue)
-            .addTo(compositeDisposable)
+            .doOnNext { hideLoading(); _swipe.call() }
+    }
 
-        movieLiked.map { System.currentTimeMillis() }
-            .buffer(2, 1)
+    private fun rxBind() {
+        val movieQuery = searchButtonClick()
+        val searchClick = searchMovie()
+        val refresh = refreshMovie()
+
+        Observable.merge(movieQuery, searchClick, refresh)
             .observeOn(AndroidSchedulers.mainThread())
-            .map { val (first, second) = it; first to second }
-            .filter { (first, second) -> second - first < 1_000 }
-            .map { movieLiked.value }
+            .map { !querySubject.value.isNullOrEmpty() }
+            .subscribe { result ->
+                if (result) {
+                    getMovie(querySubject.value!!)
+                } else {
+                    showNullQuery()
+                }
+            }.addTo(compositeDisposable)
+
+        movieLiked.observeOn(AndroidSchedulers.mainThread())
             .subscribe { saveMovie(it) }
             .addTo(compositeDisposable)
 
+        moviePosition.observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 
     fun hasLiked(movie: Movie, position: Int) {
         movieLiked.onNext(movie)
-        currentPosition = position
+        moviePosition.onNext(position)
     }
 
     fun movieRefresh() {
-        movieRefresh.onNext(Unit)
+        val item = _movieList.value
+
+        if (item.isNullOrEmpty()) {
+            _fail.value = "you dont have to refresh"
+            _swipe.call()
+        } else {
+            movieRefresh.onNext(Unit)
+        }
     }
 
     fun getMoreMovies(query: String, page: Int) {
@@ -147,14 +152,44 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
-                _paging.value = response
+                if (response.isNullOrEmpty()) {
+                    _fail.value = "no paging data"
+                } else {
+                    _fail.value = "데이터를 더 불러왔습니다" // 그냥 귀찮아서 fail로
+                    pagingSetMovie(response)
+                }
             }, { t ->
                 _fail.value = t.message
             }).addTo(compositeDisposable)
     }
 
-    fun getPagingQuery(): String {
-        return querySubject.value.toString()
+    private fun pagingSetMovie(movies: List<Movie>) {
+        val newList = mutableListOf<Movie>()
+        newList.addAll(_movieList.value!!)
+        newList.addAll(movies)
+        _movieList.value = newList
+    }
+
+    private fun saveMovie(movie: Movie) {
+        val hasLiked = !movie.hasLiked
+        val item = MovieLikeEntity(movie.id, hasLiked)
+
+        val newList = mutableListOf<Movie>()
+        newList.addAll(_movieList.value!!)
+
+        val newItem = newList[moviePosition.value!!].copy(hasLiked = hasLiked)
+        newList[moviePosition.value!!] = newItem
+
+        mainRepository.saveMovieLike(item)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                _movieList.value = newList
+            }, { t ->
+                _fail.value = t.message
+            })
+            .let(compositeDisposable::add)
+
     }
 
     private fun showLoading() {
@@ -164,22 +199,4 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private fun hideLoading() {
         _isLoading.value = false
     }
-
-    private fun saveMovie(movie: Movie?) {
-        movie?.let {
-            val movieLike = MovieLikeEntity(movie.id, true)
-
-            mainRepository.saveMovieLike(movieLike)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    _moviePosition.value = currentPosition
-                }, { t ->
-                    _fail.value = t.message
-                })
-                .let(compositeDisposable::add)
-        }
-
-    }
-
 }

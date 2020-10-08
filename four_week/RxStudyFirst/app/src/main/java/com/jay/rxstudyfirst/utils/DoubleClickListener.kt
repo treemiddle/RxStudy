@@ -1,24 +1,39 @@
 package com.jay.rxstudyfirst.utils
 
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
 
-abstract class DoubleClickListener : View.OnClickListener {
-    private var lastClickTime: Long = 0
+abstract class DoubleClickListener : View.OnClickListener, AppCompatActivity() {
+
+    private val compositeDisposable = CompositeDisposable()
+    private val _click = PublishSubject.create<Unit>()
+
+    init {
+        onItemClick()
+    }
 
     override fun onClick(v: View) {
-        val clickTime = System.currentTimeMillis()
-
-        if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-            onDoubleClick(v)
-            lastClickTime = 0
-        }
-
-        lastClickTime = clickTime
+        _click.onNext(Unit)
     }
 
-    abstract fun onDoubleClick(v: View)
+    abstract fun onDoubleClick()
 
-    companion object {
-        private const val DOUBLE_CLICK_TIME_DELTA: Long = 500
+    private fun onItemClick() {
+        _click.map { System.currentTimeMillis() }
+            .buffer(2, 1)
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { val (first, second) = it; first to second }
+            .filter { (first, second) -> second - first < 500 }
+            .subscribe { onDoubleClick() }
+            .let(compositeDisposable::add)
     }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
+
 }

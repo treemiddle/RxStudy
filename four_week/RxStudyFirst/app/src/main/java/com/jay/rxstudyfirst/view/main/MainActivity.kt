@@ -18,14 +18,11 @@ import com.jay.rxstudyfirst.utils.MyApplication
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
-
-    private var newList = mutableListOf<Movie>()
-    private var oldList = mutableListOf<Movie>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,22 +50,9 @@ class MainActivity : AppCompatActivity() {
         with(vm) {
             movieList.observe(this@MainActivity, Observer {
                 adapter.submitList(it)
-                oldList.addAll(it)
-                newList.addAll(it)
             })
             fail.observe(this@MainActivity, Observer {
                 toastMessage(it)
-            })
-            moviePosition.observe(this@MainActivity, Observer { likePosition ->
-                adapter.notifyItemChanged(likePosition)
-            })
-            paging.observe(this@MainActivity, Observer {
-                toastMessage("영화를 더 불러왔습니다")
-                oldList.addAll(it)
-
-                newList = mutableListOf()
-                newList.addAll(oldList)
-                adapter.submitList(newList)
             })
             swipe.observe(this@MainActivity, Observer {
                 hideRefresh()
@@ -78,8 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         adapter = MainAdapter { movie, position ->
-            //vm.hasLiked(movie, position)
-            Log.d(TAG, "initAdapter: $position, $movie")
+            vm.hasLiked(movie, position)
         }
 
         binding.recyclerView.adapter = adapter

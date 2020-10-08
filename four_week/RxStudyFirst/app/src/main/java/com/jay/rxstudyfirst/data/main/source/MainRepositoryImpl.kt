@@ -5,16 +5,13 @@ import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.concurrent.TimeUnit
 
 class MainRepositoryImpl(
     private val remoteDataSource: MainRemoteDataSource,
     private val localDataSource: MainLocalDataSource
 ) : MainRepository {
-    private val TAG = javaClass.simpleName
 
     override fun saveMovieLike(movieLike: MovieLikeEntity): Completable {
         return localDataSource.saveMovie(movieLike)

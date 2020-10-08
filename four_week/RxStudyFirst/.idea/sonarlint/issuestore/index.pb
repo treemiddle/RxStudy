@@ -85,3 +85,5 @@ t
 Dapp/src/main/java/com/jay/rxstudyfirst/data/database/MovieLikeDao.kt,7/a/7ad64d9ece8c5ca08dbec5f2a5734db3d09302a2
 n
 >app/src/main/java/com/jay/rxstudyfirst/data/MovieLikeEntity.kt,2/b/2bbe2612e41ba1620ef1789ce0ee872ac4103bb2
+s
+Capp/src/main/java/com/jay/rxstudyfirst/utils/DoubleClickListener.kt,c/7/c7c138f9f7b2f0b2bada1d3e5724435197db63e5

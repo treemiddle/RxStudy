@@ -8,7 +8,6 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jay.rxstudyfirst.R
-import com.jay.rxstudyfirst.view.main.MainViewModel
 
 @BindingAdapter("setMoviePoster")
 fun setMoviePoster(iv: ImageView, url: String?) {
@@ -43,16 +42,16 @@ fun setMovieRating(rb: RatingBar, rating: Float?) {
     rb.rating = rating ?: 0f
 }
 
-interface OnLoadMoreListener {
-    fun onLoadMore(page: Int)
-}
-
 @BindingAdapter("endlessScroll")
 fun RecyclerView.endlessScroll(listener: OnLoadMoreListener) {
     val srcollListener = object : EndlessRecyclerViewScrollListener(layoutManager as LinearLayoutManager) {
         override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-            //listener.onLoadMore(page)
+            listener.onLoadMore(page)
         }
     }
     addOnScrollListener(srcollListener)
+}
+
+interface OnLoadMoreListener {
+    fun onLoadMore(page: Int)
 }
