@@ -155,7 +155,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 if (response.isNullOrEmpty()) {
                     _fail.value = "no paging data"
                 } else {
-                    _fail.value = "데이터를 더 불러왔습니다" // 그냥 귀찮아서 fail로
+                    _fail.value = "데이터를 더 불러왔습니다" // 귀찮아서 fail로
                     pagingSetMovie(response)
                 }
             }, { t ->

@@ -1,21 +1,15 @@
 package com.jay.rxstudyfirst.view.main
 
 import android.os.Bundle
-import android.util.Log
-import android.view.GestureDetector
-import android.view.GestureDetector.OnDoubleTapListener
-import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.jay.rxstudyfirst.R
-import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
 import com.jay.rxstudyfirst.utils.MyApplication
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -66,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.recyclerView.adapter = adapter
+        //(binding.recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     private fun initRefresh() {
