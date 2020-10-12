@@ -1,7 +1,9 @@
 package com.jay.rxstudyfirst.utils
 
 import android.app.Activity
+import android.view.View
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -78,4 +80,10 @@ fun <T> Call<T>.rxCompletable(): Completable {
 
 fun Activity.activityShowToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+}
+
+fun View.snackbar(message: String) {
+    Snackbar.make(this, message, Snackbar.LENGTH_LONG).also { snackbar ->
+        snackbar.setAction("재시도") { println("retry") }
+    }
 }
