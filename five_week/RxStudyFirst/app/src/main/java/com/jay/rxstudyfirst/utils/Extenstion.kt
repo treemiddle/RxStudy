@@ -3,7 +3,9 @@ package com.jay.rxstudyfirst.utils
 import android.app.Activity
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.ViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.jay.rxstudyfirst.view.main.MainViewModel
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -82,8 +84,8 @@ fun Activity.activityShowToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun View.snackbar(message: String) {
+fun View.snackbar(message: String, listener: MergeInterface.SnackbarListener) {
     Snackbar.make(this, message, Snackbar.LENGTH_LONG).also { snackbar ->
-        snackbar.setAction("재시도") { println("retry") }
-    }
+        snackbar.setAction("재시도") { listener.onRetry() }
+    }.show()
 }

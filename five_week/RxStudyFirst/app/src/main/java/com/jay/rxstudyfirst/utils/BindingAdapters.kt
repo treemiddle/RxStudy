@@ -1,6 +1,5 @@
 package com.jay.rxstudyfirst.utils
 
-import android.util.Log
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
@@ -43,15 +42,11 @@ fun setMovieRating(rb: RatingBar, rating: Float?) {
 }
 
 @BindingAdapter("endlessScroll")
-fun RecyclerView.endlessScroll(listener: OnLoadMoreListener) {
+fun RecyclerView.endlessScroll(listener: MergeInterface.OnLoadMoreListener) {
     val srcollListener = object : EndlessRecyclerViewScrollListener(layoutManager as LinearLayoutManager) {
         override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
             listener.onLoadMore(page)
         }
     }
     addOnScrollListener(srcollListener)
-}
-
-interface OnLoadMoreListener {
-    fun onLoadMore(page: Int)
 }

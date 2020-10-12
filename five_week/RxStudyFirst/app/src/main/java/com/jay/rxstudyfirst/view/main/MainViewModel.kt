@@ -17,6 +17,7 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import retrofit2.HttpException
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(private val mainRepository: MainRepository) {
@@ -33,18 +34,20 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private val _movieList = MutableLiveData<List<Movie>>()
     private val _fail = SingleLiveEvent<String>()
     private val _swipe = SingleLiveEvent<Unit>()
+    private val _error = SingleLiveEvent<StateMessage>()
 
     val movieList: LiveData<List<Movie>> get() = _movieList
     val isLoading: LiveData<Boolean> get() = _isLoading
     val fail: LiveData<String> get() = _fail
     val swipe: LiveData<Unit> get() = _swipe
+    val error: LiveData<StateMessage> get() = _error
 
     init {
         rxBind()
         getMovie("man")
     }
 
-    private fun getMovie(query: String) {
+    fun getMovie(query: String) {
         disposable?.let {
             if (!it.isDisposed) {
                 it.dispose()
@@ -63,7 +66,11 @@ class MainViewModel(private val mainRepository: MainRepository) {
                     _movieList.value = response
                 }
             }, { t ->
-                _fail.value = t.message
+                println(t.message)
+                when (t.message) {
+                    "Network Error" -> _error.value = StateMessage.NETWORK_ERROR
+                    else -> _error.value = StateMessage.SERVER_ERROR
+                }
             }).addTo(compositeDisposable)
 
     }
@@ -156,11 +163,12 @@ class MainViewModel(private val mainRepository: MainRepository) {
                 if (response.isNullOrEmpty()) {
                     _fail.value = "no paging data"
                 } else {
-                    _fail.value = "데이터를 더 불러왔습니다" // 귀찮아서 fail로
+                    _fail.value = "데이터를 더 불러왔습니다"
                     pagingSetMovie(response)
                 }
             }, { t ->
-                _fail.value = t.message
+                println(t.message)
+                _fail.call()
             }).addTo(compositeDisposable)
     }
 
@@ -199,5 +207,10 @@ class MainViewModel(private val mainRepository: MainRepository) {
 
     private fun hideLoading() {
         _isLoading.value = false
+    }
+
+    enum class StateMessage {
+        NETWORK_ERROR,
+        SERVER_ERROR
     }
 }

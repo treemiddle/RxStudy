@@ -6,8 +6,12 @@ import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
 import com.jay.rxstudyfirst.utils.NetworkManager
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
+import retrofit2.HttpException
+import java.lang.RuntimeException
+import java.net.HttpRetryException
 
 class MainRepositoryImpl(
     private val remoteDataSource: MainRemoteDataSource,
