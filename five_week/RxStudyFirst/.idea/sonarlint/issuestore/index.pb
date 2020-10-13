@@ -87,3 +87,7 @@ n
 >app/src/main/java/com/jay/rxstudyfirst/data/MovieLikeEntity.kt,2/b/2bbe2612e41ba1620ef1789ce0ee872ac4103bb2
 s
 Capp/src/main/java/com/jay/rxstudyfirst/utils/DoubleClickListener.kt,c/7/c7c138f9f7b2f0b2bada1d3e5724435197db63e5
+n
+>app/src/main/java/com/jay/rxstudyfirst/utils/NetworkManager.kt,6/5/65e2d98c6f83007d0bf3026624e3b078fe2d3ffd
+n
+>app/src/main/java/com/jay/rxstudyfirst/utils/MergeInterface.kt,5/5/55f5cc8291eaeaa6ddcf00e12a36593d9c7cb811

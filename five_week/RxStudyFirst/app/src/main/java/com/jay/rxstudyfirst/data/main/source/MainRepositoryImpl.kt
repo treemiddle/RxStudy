@@ -1,5 +1,6 @@
 package com.jay.rxstudyfirst.data.main.source
 
+import android.util.Log
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
@@ -18,7 +19,7 @@ class MainRepositoryImpl(
     private val localDataSource: MainLocalDataSource,
     private val networkManager: NetworkManager
 ) : MainRepository {
-
+    private val TAG = javaClass.simpleName
     override fun saveMovieLike(movieLike: MovieLikeEntity): Completable {
         return localDataSource.saveMovie(movieLike)
     }
@@ -30,6 +31,14 @@ class MainRepositoryImpl(
         } else {
             Single.error(IllegalStateException("Network Error"))
         }
+    }
+
+    override fun getNetworkState(): Single<Boolean> {
+        return networkState()
+    }
+
+    override fun test(): Boolean {
+        return networkManager.networkState()
     }
 
     private fun remoteMovie(query: String, page: Int): Single<List<Movie>> {
@@ -48,6 +57,20 @@ class MainRepositoryImpl(
                     }, true)
                     .toList()
             }
+    }
+
+    private fun networkState(): Single<Boolean> {
+        return Single.create { emitter ->
+            val result = networkManager.networkState()
+
+            if (result) {
+                Log.d(TAG, "networkState: if")
+                emitter.onSuccess(result)
+            } else {
+                Log.d(TAG, "networkState: else")
+                emitter.onError(Throwable("error...."))
+            }
+        }
     }
 
 }

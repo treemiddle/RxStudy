@@ -12,12 +12,7 @@ interface MainRepository {
 
     fun getMovies(query: String, page: Int = 1): Single<List<Movie>>
 
+    fun getNetworkState(): Single<Boolean>
 
-    //    fun getMovie(query: String): Flowable<List<Movie>>
-//
-//    fun getMoreMovies(query: String, page: Int): Single<List<Movie>>
-//
-//    fun movieLike(movie: Movie): Completable
-//
-//    fun deleteAll(): Completable
+    fun test(): Boolean
 }

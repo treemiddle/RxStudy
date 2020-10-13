@@ -1,6 +1,7 @@
 package com.jay.rxstudyfirst.utils
 
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
@@ -84,8 +85,8 @@ fun Activity.activityShowToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun View.snackbar(message: String, listener: MergeInterface.SnackbarListener) {
-    Snackbar.make(this, message, Snackbar.LENGTH_LONG).also { snackbar ->
-        snackbar.setAction("재시도") { listener.onRetry() }
+fun View.snackbar(message: String?, listener: MergeInterface.SnackbarListener?) {
+    Snackbar.make(this, message ?: "", 30000).also { snackbar ->
+        snackbar.setAction("재시도") { listener?.onRetry() }
     }.show()
 }

@@ -1,11 +1,18 @@
 package com.jay.rxstudyfirst.view.main
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
 import com.jay.rxstudyfirst.utils.MergeInterface
@@ -15,16 +22,17 @@ import com.jay.rxstudyfirst.utils.snackbar
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-
+    private val TAG = javaClass.simpleName
     private val compositeDisposable = CompositeDisposable()
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
-
+    private var snackbar: Snackbar? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun inject() {
         myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy)
+        vm = MainViewModel(myApplication.mainReposiroy, myApplication.applicationContext)
     }
 
     private fun initView() {
@@ -60,20 +68,23 @@ class MainActivity : AppCompatActivity() {
             })
             error.observe(this@MainActivity, Observer {
                 when (error.value) {
-                    MainViewModel.StateMessage.NETWORK_ERROR -> binding.parentLayout.snackbar("에러가 발생했어요...",
-                        object : MergeInterface.SnackbarListener {
-                            override fun onRetry() {
-                                Observable.just(Unit)
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .doOnSubscribe { binding.progressBar.visibility = View.VISIBLE }
-                                    .delay(3000, TimeUnit.MILLISECONDS)
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .doOnTerminate { binding.progressBar.visibility = View.GONE }
-                                    .subscribe { vm.getMovie("man") }
-                                    .let(compositeDisposable::add)
-                            }
-                        })
+                    MainViewModel.StateMessage.NETWORK_ERROR -> {
+                        binding.parentLayout.snackbar("에러가 발생했어요...",
+                            object : MergeInterface.SnackbarListener {
+                                override fun onRetry() {
+                                    //vm.onRetryClick()
+                                    vm.retryNetwork()
+                                }
+                            })
+                        //snackbar = Snackbar.make(binding.parentLayout, "errorrrrrr", 30000)
+                        //snackbar?.setAction("zzz") { vm.sibal() }?.show()
+                    }
                     MainViewModel.StateMessage.SERVER_ERROR -> this@MainActivity.activityShowToast("알 수 없어요....")
+                    MainViewModel.StateMessage.NETWORK_SUCCESS -> {
+                        Log.d(TAG, "initViewModelObserving: 시발!!!!!!")
+                        //binding.parentLayout.snackbar(null, null)
+                        snackbar?.dismiss()
+                    }
                 }
             })
         }
@@ -103,6 +114,47 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTextWatcher() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
+    }
+
+    //    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+//        override fun onAvailable(network: Network) {
+//            Log.d(TAG, "onAvailable: ")
+//            val test = vm.getNetworkState()
+//            vm.getNetworkState().observeOn(AndroidSchedulers.mainThread())
+//                .filter { true }
+//                .subscribe {
+//                    Log.d(TAG, "onAvailable: successs")
+//
+//                }
+//                .addTo(compositeDisposable)
+//        }
+//
+//        override fun onLost(network: Network) {
+//            Log.d(TAG, "onLost: ")
+//        }
+//    }
+//
+//    private fun registerNetwork() {
+//        val connectManager = getSystemService(ConnectivityManager::class.java)
+//        val request = NetworkRequest.Builder()
+//            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+//            .build()
+//        connectManager.registerNetworkCallback(request, networkCallback)
+//    }
+//
+//    private fun unregisterNetwork() {
+//        val connectivityManager = getSystemService(ConnectivityManager::class.java)
+//        connectivityManager.unregisterNetworkCallback(networkCallback)
+//    }
+//
+    override fun onStart() {
+        super.onStart()
+        vm.registerNetwork()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        vm.unregisterNetwork()
     }
 
     override fun onDestroy() {
