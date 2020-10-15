@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
     private var snackbar: Snackbar? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun inject() {
         myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy, myApplication.applicationContext)
+        vm = MainViewModel(myApplication.mainReposiroy)
     }
 
     private fun initView() {
@@ -69,20 +70,18 @@ class MainActivity : AppCompatActivity() {
             error.observe(this@MainActivity, Observer {
                 when (error.value) {
                     MainViewModel.StateMessage.NETWORK_ERROR -> {
-                        binding.parentLayout.snackbar("에러가 발생했어요...",
-                            object : MergeInterface.SnackbarListener {
-                                override fun onRetry() {
-                                    //vm.onRetryClick()
-                                    vm.retryNetwork()
-                                }
-                            })
-                        //snackbar = Snackbar.make(binding.parentLayout, "errorrrrrr", 30000)
-                        //snackbar?.setAction("zzz") { vm.sibal() }?.show()
+                        snackbar = Snackbar.make(binding.parentLayout, "errorrrrrr", 30000)
+                        snackbar?.setAction("zzz") { vm.onRetryClick() }?.show()
+//                        binding.parentLayout.snackbar("에러가 발생했어요...",
+//                            object : MergeInterface.SnackbarListener {
+//                                override fun onRetry() {
+//                                    vm.onRetryClick()
+//                                }
+//                            })
                     }
                     MainViewModel.StateMessage.SERVER_ERROR -> this@MainActivity.activityShowToast("알 수 없어요....")
                     MainViewModel.StateMessage.NETWORK_SUCCESS -> {
                         Log.d(TAG, "initViewModelObserving: 시발!!!!!!")
-                        //binding.parentLayout.snackbar(null, null)
                         snackbar?.dismiss()
                     }
                 }
@@ -116,50 +115,44 @@ class MainActivity : AppCompatActivity() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
     }
 
-    //    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-//        override fun onAvailable(network: Network) {
-//            Log.d(TAG, "onAvailable: ")
-//            val test = vm.getNetworkState()
-//            vm.getNetworkState().observeOn(AndroidSchedulers.mainThread())
-//                .filter { true }
-//                .subscribe {
-//                    Log.d(TAG, "onAvailable: successs")
-//
-//                }
-//                .addTo(compositeDisposable)
-//        }
-//
-//        override fun onLost(network: Network) {
-//            Log.d(TAG, "onLost: ")
-//        }
-//    }
-//
-//    private fun registerNetwork() {
-//        val connectManager = getSystemService(ConnectivityManager::class.java)
-//        val request = NetworkRequest.Builder()
-//            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-//            .build()
-//        connectManager.registerNetworkCallback(request, networkCallback)
-//    }
-//
-//    private fun unregisterNetwork() {
-//        val connectivityManager = getSystemService(ConnectivityManager::class.java)
-//        connectivityManager.unregisterNetworkCallback(networkCallback)
-//    }
-//
     override fun onStart() {
         super.onStart()
-        vm.registerNetwork()
+        registerNetwork()
     }
 
     override fun onStop() {
         super.onStop()
-        vm.unregisterNetwork()
+        unregisterNetwork()
     }
 
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
+    }
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            Log.d(TAG, "onAvailable: ")
+            vm.setOnAvailable(1)
+        }
+
+        override fun onLost(network: Network) {
+            Log.d(TAG, "onLost: ")
+            vm.setOnAvailable(0)
+        }
+    }
+
+    private fun registerNetwork() {
+        val connectManager = getSystemService(ConnectivityManager::class.java)
+        val request = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        connectManager.registerNetworkCallback(request, networkCallback)
+    }
+
+    private fun unregisterNetwork() {
+        val connectivityManager = getSystemService(ConnectivityManager::class.java)
+        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
 }

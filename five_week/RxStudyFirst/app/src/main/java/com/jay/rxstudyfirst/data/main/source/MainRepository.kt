@@ -3,7 +3,7 @@ package com.jay.rxstudyfirst.data.main.source
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface MainRepository {
@@ -12,7 +12,5 @@ interface MainRepository {
 
     fun getMovies(query: String, page: Int = 1): Single<List<Movie>>
 
-    fun getNetworkState(): Single<Boolean>
-
-    fun test(): Boolean
+    fun getNetworkState(): Observable<Boolean>
 }
