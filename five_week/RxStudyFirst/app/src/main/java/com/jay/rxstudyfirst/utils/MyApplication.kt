@@ -45,28 +45,23 @@ class MyApplication : Application() {
         RxJavaPlugins.setErrorHandler { e ->
             var error = e
             if (error is UndeliverableException) {
-                Log.d(TAG, "rxErrorHandler: 1")
                 error = e.cause
             }
             if (error is IOException || error is SocketException) {
-                Log.d(TAG, "rxErrorHandler: 2")
                 // fine, irrelevant network problem or API that throws on cancellation
                 return@setErrorHandler
             }
             if (error is InterruptedException) {
-                Log.d(TAG, "rxErrorHandler: 3")
                 // fine, some blocking code was interrupted by a dispose call
                 return@setErrorHandler
             }
             if (error is NullPointerException || error is IllegalArgumentException) {
                 // that's likely a bug in the application
-                Log.d(TAG, "rxErrorHandler: 4")
                 Thread.currentThread().uncaughtExceptionHandler
                     .uncaughtException(Thread.currentThread(), error)
                 return@setErrorHandler
             }
             if (error is IllegalStateException) {
-                Log.d(TAG, "rxErrorHandler: 5")
                 // that's a bug in RxJava or in a custom operator
                 Thread.currentThread().uncaughtExceptionHandler
                     .uncaughtException(Thread.currentThread(), error)

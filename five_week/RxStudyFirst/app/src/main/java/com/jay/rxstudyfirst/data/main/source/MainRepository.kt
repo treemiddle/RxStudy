@@ -12,5 +12,8 @@ interface MainRepository {
 
     fun getMovies(query: String, page: Int = 1): Single<List<Movie>>
 
-    fun getNetworkState(): Observable<Boolean>
+    /**
+     * 추가
+     */
+    fun getNetwork(): Boolean
 }

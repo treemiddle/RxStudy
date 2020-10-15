@@ -85,8 +85,8 @@ fun Activity.activityShowToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun View.snackbar(message: String?, listener: MergeInterface.SnackbarListener?) {
-    Snackbar.make(this, message ?: "", 30000).also { snackbar ->
-        snackbar.setAction("재시도") { listener?.onRetry() }
+fun View.snackbar(message: String, listener: MergeInterface.SnackbarListener) {
+    Snackbar.make(this, message, 30000).also { snackbar ->
+        snackbar.setAction("재시도") { listener.onRetry() }
     }.show()
 }

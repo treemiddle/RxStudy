@@ -1,6 +1,5 @@
 package com.jay.rxstudyfirst.data.main.source
 
-import android.accounts.NetworkErrorException
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
@@ -20,6 +19,9 @@ class MainRepositoryImpl(
         return localDataSource.saveMovie(movieLike)
     }
 
+    /**
+     * 네트워크 연결 실패시 에러 방출
+     */
     override fun getMovies(query: String, page: Int): Single<List<Movie>> {
         return if (networkManager.networkState()) {
             remoteDataSource.getMovie(query, page)
@@ -29,14 +31,8 @@ class MainRepositoryImpl(
         }
     }
 
-    override fun getNetworkState(): Observable<Boolean> {
-        return Observable.create { emitter ->
-            if (networkManager.networkState()) {
-                emitter.onNext(true)
-            } else {
-                emitter.onError(NetworkErrorException())
-            }
-        }
+    override fun getNetwork(): Boolean {
+        return networkManager.networkState()
     }
 
     private fun remoteMovie(query: String, page: Int): Single<List<Movie>> {

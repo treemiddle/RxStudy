@@ -6,24 +6,16 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
-import com.jay.rxstudyfirst.utils.MergeInterface
 import com.jay.rxstudyfirst.utils.MyApplication
 import com.jay.rxstudyfirst.utils.activityShowToast
-import com.jay.rxstudyfirst.utils.snackbar
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private val TAG = javaClass.simpleName
@@ -33,9 +25,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
     private var snackbar: Snackbar? = null
+    private var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        myApplication = application as MyApplication
+        vm = MainViewModel(myApplication.mainReposiroy)
+        binding.vm = vm
+        binding.lifecycleOwner = this
 
         inject()
         initView()
@@ -67,21 +66,24 @@ class MainActivity : AppCompatActivity() {
             swipe.observe(this@MainActivity, Observer {
                 hideRefresh()
             })
-            error.observe(this@MainActivity, Observer {
-                when (error.value) {
+            /**
+             * 상태값 추가
+             */
+            state.observe(this@MainActivity, Observer {
+                when (state.value) {
                     MainViewModel.StateMessage.NETWORK_ERROR -> {
-                        snackbar = Snackbar.make(binding.parentLayout, "errorrrrrr", 30000)
-                        snackbar?.setAction("zzz") { vm.onRetryClick() }?.show()
-//                        binding.parentLayout.snackbar("에러가 발생했어요...",
-//                            object : MergeInterface.SnackbarListener {
-//                                override fun onRetry() {
-//                                    vm.onRetryClick()
-//                                }
-//                            })
+//                        binding.parentLayout.snackbar("재시도", object : MergeInterface.SnackbarListener {
+//                            override fun onRetry() {
+//                                vm.retryObservable()
+//                            }
+//                        })
+                        snackbar = Snackbar.make((binding.parentLayout), "에러발생...", 30000)
+                        snackbar?.setAction("재시도") { vm.retryObservable() }?.show()
                     }
-                    MainViewModel.StateMessage.SERVER_ERROR -> this@MainActivity.activityShowToast("알 수 없어요....")
+                    MainViewModel.StateMessage.UNKWON_ERROR -> {
+                        this@MainActivity.activityShowToast("알수없는오류발생")
+                    }
                     MainViewModel.StateMessage.NETWORK_SUCCESS -> {
-                        Log.d(TAG, "initViewModelObserving: 시발!!!!!!")
                         snackbar?.dismiss()
                     }
                 }
@@ -115,6 +117,9 @@ class MainActivity : AppCompatActivity() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
     }
 
+    /**
+     * ↓ 밑으로 전부 추가
+     */
     override fun onStart() {
         super.onStart()
         registerNetwork()
@@ -130,15 +135,22 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    /**
+     * 인터넷 연결 될 떄마다 호출됨.....
+     */
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            Log.d(TAG, "onAvailable: ")
-            vm.setOnAvailable(1)
+            count++
+            if (count in 0..1) {
+                Log.d(TAG, "onAvailable nonono: $count")
+            } else {
+                Log.d(TAG, "onAvailable gogo: $count")
+                vm.networkAutoConnect()
+            }
         }
 
         override fun onLost(network: Network) {
             Log.d(TAG, "onLost: ")
-            vm.setOnAvailable(0)
         }
     }
 
