@@ -1,19 +1,19 @@
 package com.jay.rxstudyfirst.view.main
 
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
+import android.content.Context
+import android.net.*
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.snackbar.Snackbar
 import com.jay.rxstudyfirst.R
 import com.jay.rxstudyfirst.databinding.ActivityMainBinding
 import com.jay.rxstudyfirst.utils.MyApplication
+import com.jay.rxstudyfirst.utils.NetworkManager
 import com.jay.rxstudyfirst.utils.activityShowToast
 import io.reactivex.disposables.CompositeDisposable
 
@@ -24,15 +24,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
+    private lateinit var n: NetworkManager
     private var snackbar: Snackbar? = null
     private var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        n = NetworkManager(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy)
+        vm = MainViewModel(myApplication.mainReposiroy, n)
         binding.vm = vm
         binding.lifecycleOwner = this
 
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun inject() {
         myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy)
+        vm = MainViewModel(myApplication.mainReposiroy, n)
     }
 
     private fun initView() {
@@ -66,9 +67,6 @@ class MainActivity : AppCompatActivity() {
             swipe.observe(this@MainActivity, Observer {
                 hideRefresh()
             })
-            /**
-             * 상태값 추가
-             */
             state.observe(this@MainActivity, Observer {
                 when (state.value) {
                     MainViewModel.StateMessage.NETWORK_ERROR -> {
@@ -78,7 +76,10 @@ class MainActivity : AppCompatActivity() {
 //                            }
 //                        })
                         snackbar = Snackbar.make((binding.parentLayout), "에러발생...", 30000)
-                        snackbar?.setAction("재시도") { vm.retryObservable() }?.show()
+                        snackbar?.setAction("재시도") {
+                            vm.onRetryClick()
+                            //vm.testnetwork(true)
+                        }?.show()
                     }
                     MainViewModel.StateMessage.UNKWON_ERROR -> {
                         this@MainActivity.activityShowToast("알수없는오류발생")
@@ -91,16 +92,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 깜빡 거림 현상 해결해야됨....
-     */
     private fun initAdapter() {
         adapter = MainAdapter { movie, position ->
             vm.hasLiked(movie, position)
         }
 
         binding.recyclerView.adapter = adapter
-        //(binding.recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        (binding.recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     private fun initRefresh() {
@@ -117,9 +115,6 @@ class MainActivity : AppCompatActivity() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
     }
 
-    /**
-     * ↓ 밑으로 전부 추가
-     */
     override fun onStart() {
         super.onStart()
         registerNetwork()
@@ -135,22 +130,20 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    /**
-     * 인터넷 연결 될 떄마다 호출됨.....
-     */
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            count++
-            if (count in 0..1) {
-                Log.d(TAG, "onAvailable nonono: $count")
-            } else {
-                Log.d(TAG, "onAvailable gogo: $count")
-                vm.networkAutoConnect()
+            Log.d(TAG, "onAvailable: ")
+
+            if (count != 0) {
+                vm.onNetworkState(true)
+                count = 0
             }
         }
 
         override fun onLost(network: Network) {
             Log.d(TAG, "onLost: ")
+            vm.onNetworkState(false)
+            count = 1
         }
     }
 
@@ -158,6 +151,7 @@ class MainActivity : AppCompatActivity() {
         val connectManager = getSystemService(ConnectivityManager::class.java)
         val request = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .build()
         connectManager.registerNetworkCallback(request, networkCallback)
     }

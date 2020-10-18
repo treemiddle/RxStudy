@@ -91,3 +91,5 @@ n
 >app/src/main/java/com/jay/rxstudyfirst/utils/NetworkManager.kt,6/5/65e2d98c6f83007d0bf3026624e3b078fe2d3ffd
 n
 >app/src/main/java/com/jay/rxstudyfirst/utils/MergeInterface.kt,5/5/55f5cc8291eaeaa6ddcf00e12a36593d9c7cb811
+k
+;app/src/main/java/com/jay/rxstudyfirst/base/BaseActivity.kt,1/c/1c0fc79dc1d4d46fc2e229b1330bb8fded25fbc2

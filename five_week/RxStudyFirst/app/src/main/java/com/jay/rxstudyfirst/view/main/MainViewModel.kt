@@ -1,22 +1,36 @@
 package com.jay.rxstudyfirst.view.main
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.MainRepository
+import com.jay.rxstudyfirst.utils.NetworkManager
 import com.jay.rxstudyfirst.utils.SingleLiveEvent
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.FlowableEmitter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.merge
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
-class MainViewModel(private val mainRepository: MainRepository) {
+class MainViewModel(
+    private val mainRepository: MainRepository,
+    private val manager: NetworkManager
+) {
 
     private val TAG = javaClass.simpleName
     private val compositeDisposable = CompositeDisposable()
@@ -26,10 +40,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
     private val movieLiked = BehaviorSubject.create<Movie>()
     private val moviePosition = BehaviorSubject.create<Int>()
     private val movieRefresh = PublishSubject.create<Unit>()
-
-    /**
-     * 추가
-     */
+    private val retryButton = PublishSubject.create<Unit>()
     private val networkState = BehaviorSubject.create<Boolean>()
 
     private val _state = SingleLiveEvent<StateMessage>()
@@ -46,6 +57,28 @@ class MainViewModel(private val mainRepository: MainRepository) {
 
     init {
         rxBind()
+    }
+
+    private fun getNetworkState(): Flowable<Boolean>{
+        val request = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+        return Flowable.create({ emitter: FlowableEmitter<Boolean> ->
+            val callback = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    emitter.onNext(true)
+                }
+
+                override fun onLost(network: Network) {
+                    emitter.onNext(false)
+                }
+            }
+            manager.register(request, callback)
+            emitter.setCancellable {
+                manager.unregister(callback)
+            }
+        }, BackpressureStrategy.LATEST)
     }
 
     private fun rxBind() {
@@ -72,12 +105,18 @@ class MainViewModel(private val mainRepository: MainRepository) {
             .subscribe()
             .addTo(compositeDisposable)
 
-        /**
-         * 추가
-         */
-        networkState
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { autoRetry() }
+
+//        Observable.merge(retryButton, networkState)
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { getMovie(querySubject.value!!) }
+//            .addTo(compositeDisposable)
+
+        retryButton.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { retryFlowable() }
+            .addTo(compositeDisposable)
+
+        networkState.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { networkFlowable(it) }
             .addTo(compositeDisposable)
     }
 
@@ -91,6 +130,18 @@ class MainViewModel(private val mainRepository: MainRepository) {
         disposable = mainRepository.getMovies(query)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .retryWhen { retryWhen ->
+                Log.d(TAG, "retryWhen: ")
+                retryWhen.flatMap { e ->
+                    Log.d(TAG, "flatMap: ")
+                    _state.value = StateMessage.NETWORK_ERROR
+                    Flowable.ambArray(
+                        getNetworkState()
+                            .filter{ isConnected ->  isConnected },
+                        retryButton.toFlowable(BackpressureStrategy.DROP)
+                    ).doOnNext { _state.value = StateMessage.NETWORK_SUCCESS }
+                }
+            }
             .doOnSubscribe { showLoading() }
             .doAfterTerminate { hideLoading() }
             .subscribe({ response ->
@@ -100,9 +151,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
                     _movieList.value = response
                 }
             }, { t ->
-                /**
-                 * 수정
-                 */
+                Log.d(TAG, "getMovie fail: $t")
                 when (t.message) {
                     "Network Error" -> _state.value = StateMessage.NETWORK_ERROR
                     else -> _state.value = StateMessage.UNKWON_ERROR
@@ -142,6 +191,14 @@ class MainViewModel(private val mainRepository: MainRepository) {
 
     fun queryOnNext(query: String?) {
         query?.let { querySubject.onNext(query) }
+    }
+
+    fun onRetryClick() {
+        retryButton.onNext(Unit)
+    }
+
+    fun onNetworkState(state: Boolean) {
+        networkState.onNext(state)
     }
 
     private fun showNullQuery() {
@@ -219,56 +276,28 @@ class MainViewModel(private val mainRepository: MainRepository) {
         _isLoading.value = false
     }
 
-    /**
-     * 재시도 버튼 클릭
-     */
-    fun retryObservable() {
-        val result = mainRepository.getNetwork()
-
-        Observable.timer(2000, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { showLoading() }
-            .doAfterTerminate { hideLoading() }
-            .subscribe {
-                if (result) {
-                    _state.value = StateMessage.NETWORK_SUCCESS
-                    getMovie(querySubject.value!!)
-                } else {
-                    _state.value = StateMessage.NETWORK_ERROR
-                }
-            }
-            .addTo(compositeDisposable)
+    private fun networkFlowable(state: Boolean): Flowable<Boolean> {
+        return Flowable.create({ emitter ->
+            Log.d(TAG, "networkFlowable: ")
+//            networkState.observeOn(AndroidSchedulers.mainThread())
+//                .subscribe { emitter.onNext(it) }
+            emitter.onNext(state)
+        }, BackpressureStrategy.DROP)
     }
 
-    /**
-     * 네트워크 자동연결
-     */
-    fun networkAutoConnect() {
-        networkState.onNext(true)
+    private fun retryFlowable(): Flowable<Unit> {
+        return Flowable.create({ emitter ->
+            Log.d(TAG, "retryFlowable: ")
+//            retryButton.observeOn(AndroidSchedulers.mainThread())
+//                .subscribe { emitter.onNext(Unit) }
+            emitter.onNext(Unit)
+        }, BackpressureStrategy.DROP)
     }
 
-    /**
-     * 네트워크 연결로 인한 요청
-     */
-    private fun autoRetry() {
-        Observable.timer(2000, TimeUnit.MILLISECONDS)
-            .skip(0)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { showLoading() }
-            .doAfterTerminate { hideLoading() }
-            .subscribe {
-                _state.value = StateMessage.NETWORK_SUCCESS
-                getMovie(querySubject.value!!)
-            }
-            .addTo(compositeDisposable)
-    }
-
-    /**
-     * 추가
-     */
     enum class StateMessage {
         NETWORK_ERROR,
         UNKWON_ERROR,
         NETWORK_SUCCESS
     }
+
 }

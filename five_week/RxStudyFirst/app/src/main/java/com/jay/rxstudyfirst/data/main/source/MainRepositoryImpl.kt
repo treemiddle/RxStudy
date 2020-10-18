@@ -14,14 +14,15 @@ class MainRepositoryImpl(
     private val localDataSource: MainLocalDataSource,
     private val networkManager: NetworkManager
 ) : MainRepository {
+    private val TAG = javaClass.simpleName
+
+    override val getNetworkState: Boolean
+        get() = networkManager.networkState()
 
     override fun saveMovieLike(movieLike: MovieLikeEntity): Completable {
         return localDataSource.saveMovie(movieLike)
     }
 
-    /**
-     * 네트워크 연결 실패시 에러 방출
-     */
     override fun getMovies(query: String, page: Int): Single<List<Movie>> {
         return if (networkManager.networkState()) {
             remoteDataSource.getMovie(query, page)
@@ -29,10 +30,6 @@ class MainRepositoryImpl(
         } else {
             Single.error(IllegalStateException("Network Error"))
         }
-    }
-
-    override fun getNetwork(): Boolean {
-        return networkManager.networkState()
     }
 
     private fun remoteMovie(query: String, page: Int): Single<List<Movie>> {

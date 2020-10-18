@@ -8,12 +8,10 @@ import io.reactivex.Single
 
 interface MainRepository {
 
+    val getNetworkState: Boolean
+
     fun saveMovieLike(movieLike: MovieLikeEntity): Completable
 
     fun getMovies(query: String, page: Int = 1): Single<List<Movie>>
 
-    /**
-     * 추가
-     */
-    fun getNetwork(): Boolean
 }
