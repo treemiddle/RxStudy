@@ -29,12 +29,11 @@ class MyApplication : Application() {
     private fun inject() {
         val apiService = ApiService.api
         val database = JDataBase.Factory.create(applicationContext)
-        val network = NetworkManager(applicationContext)
 
         val mainRemoteDataSource = MainRemoteDataSourceImpl(apiService)
         val mainLocalDataSource = MainLocalDataSourceImpl(database.movieLikeDao())
 
-        mainReposiroy = MainRepositoryImpl(mainRemoteDataSource, mainLocalDataSource, network)
+        mainReposiroy = MainRepositoryImpl(mainRemoteDataSource, mainLocalDataSource)
     }
 
     private fun initStetho() {

@@ -158,6 +158,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/MovieResponse.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/jay/rxstudyfirst/data/Test.kt">
           <value>
             <set />
@@ -449,6 +454,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/build.gradle">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../../수아 5주차/RxStudyFirst/app/src/main/java/com/jay/rxstudyfirst/utils/NetworkManager.kt">
           <value>
             <set />
           </value>

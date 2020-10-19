@@ -18,42 +18,28 @@ import com.jay.rxstudyfirst.utils.activityShowToast
 import io.reactivex.disposables.CompositeDisposable
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
-    private val compositeDisposable = CompositeDisposable()
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MainAdapter
     private lateinit var vm: MainViewModel
     private lateinit var myApplication: MyApplication
-    private lateinit var n: NetworkManager
+    private lateinit var network: NetworkManager
     private var snackbar: Snackbar? = null
-    private var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        n = NetworkManager(this)
+
+        network = NetworkManager(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy, n)
+        vm = MainViewModel(myApplication.mainReposiroy, network)
         binding.vm = vm
         binding.lifecycleOwner = this
 
-        inject()
-        initView()
         initViewModelObserving()
         initAdapter()
         initRefresh()
         initTextWatcher()
-    }
-
-    private fun inject() {
-        myApplication = application as MyApplication
-        vm = MainViewModel(myApplication.mainReposiroy, n)
-    }
-
-    private fun initView() {
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.vm = vm
-        binding.lifecycleOwner = this
     }
 
     private fun initViewModelObserving() {
@@ -70,15 +56,9 @@ class MainActivity : AppCompatActivity() {
             state.observe(this@MainActivity, Observer {
                 when (state.value) {
                     MainViewModel.StateMessage.NETWORK_ERROR -> {
-//                        binding.parentLayout.snackbar("재시도", object : MergeInterface.SnackbarListener {
-//                            override fun onRetry() {
-//                                vm.retryObservable()
-//                            }
-//                        })
                         snackbar = Snackbar.make((binding.parentLayout), "에러발생...", 30000)
                         snackbar?.setAction("재시도") {
                             vm.onRetryClick()
-                            //vm.testnetwork(true)
                         }?.show()
                     }
                     MainViewModel.StateMessage.UNKWON_ERROR -> {
@@ -113,52 +93,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTextWatcher() {
         binding.etQuery.addTextChangedListener { vm.queryOnNext(it.toString()) }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        registerNetwork()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterNetwork()
-    }
-
-    override fun onDestroy() {
-        compositeDisposable.clear()
-        super.onDestroy()
-    }
-
-    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            Log.d(TAG, "onAvailable: ")
-
-            if (count != 0) {
-                vm.onNetworkState(true)
-                count = 0
-            }
-        }
-
-        override fun onLost(network: Network) {
-            Log.d(TAG, "onLost: ")
-            vm.onNetworkState(false)
-            count = 1
-        }
-    }
-
-    private fun registerNetwork() {
-        val connectManager = getSystemService(ConnectivityManager::class.java)
-        val request = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-            .build()
-        connectManager.registerNetworkCallback(request, networkCallback)
-    }
-
-    private fun unregisterNetwork() {
-        val connectivityManager = getSystemService(ConnectivityManager::class.java)
-        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
 }

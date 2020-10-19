@@ -4,38 +4,28 @@ import com.jay.rxstudyfirst.data.Movie
 import com.jay.rxstudyfirst.data.MovieLikeEntity
 import com.jay.rxstudyfirst.data.main.source.local.MainLocalDataSource
 import com.jay.rxstudyfirst.data.main.source.remote.MainRemoteDataSource
-import com.jay.rxstudyfirst.utils.NetworkManager
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
 class MainRepositoryImpl(
     private val remoteDataSource: MainRemoteDataSource,
-    private val localDataSource: MainLocalDataSource,
-    private val networkManager: NetworkManager
+    private val localDataSource: MainLocalDataSource
 ) : MainRepository {
-    private val TAG = javaClass.simpleName
-
-    override val getNetworkState: Boolean
-        get() = networkManager.networkState()
 
     override fun saveMovieLike(movieLike: MovieLikeEntity): Completable {
         return localDataSource.saveMovie(movieLike)
     }
 
     override fun getMovies(query: String, page: Int): Single<List<Movie>> {
-        return if (networkManager.networkState()) {
-            remoteDataSource.getMovie(query, page)
-                .flatMap { remoteMovie(query, page) }
-        } else {
-            Single.error(IllegalStateException("Network Error"))
-        }
+        return remoteDataSource.getMovie(query, page)
+            .flatMap { remoteMovie(query, page) }
     }
 
     private fun remoteMovie(query: String, page: Int): Single<List<Movie>> {
         return remoteDataSource.getMovie(query, page)
             .flatMap { remoteMovie ->
-                Observable.fromIterable(remoteMovie.data.movies)
+                Observable.fromIterable(remoteMovie.data.movies ?: emptyList())
                     .concatMapEagerDelayError({ movie ->
                         Observable.just(movie.id)
                             .flatMap { id ->
