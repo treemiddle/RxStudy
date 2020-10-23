@@ -1,10 +1,10 @@
 package com.jay.rxstudyfirst.view.sixweek
 
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.jay.rxstudyfirst.R
@@ -20,11 +20,10 @@ import kotlinx.android.synthetic.main.activity_sixweek.*
 import java.util.regex.Pattern
 
 class SixWeekActivity : AppCompatActivity() {
-    private val TAG = javaClass.simpleName
 
     private val compositeDisposable = CompositeDisposable()
-    private val _email = BehaviorSubject.createDefault("")
-    private val _password = BehaviorSubject.createDefault("")
+    private val _email = BehaviorSubject.create<String>()
+    private val _password = BehaviorSubject.create<String>()
     private val _confirm = BehaviorSubject.create<String>()
     private val _button = PublishSubject.create<Unit>()
     private val allCheck = Observable.combineLatest(
@@ -46,6 +45,10 @@ class SixWeekActivity : AppCompatActivity() {
     }
 
     private fun bindRx() {
+        _button.observeOn(AndroidSchedulers.mainThread())
+            .subscribe { gogogogogo() }
+            .let(compositeDisposable::add)
+
         initFormCheck(btn6, allCheck)
     }
 
@@ -54,14 +57,12 @@ class SixWeekActivity : AppCompatActivity() {
     }
 
     private fun emailValidator(): Observable<Boolean> {
-        return _email.skip(1)
-            .map { e -> Patterns.EMAIL_ADDRESS.matcher(e).matches() }
+        return _email.map { e -> Patterns.EMAIL_ADDRESS.matcher(e).matches() }
             .doOnNext { showMessage(et_6email, "email check", it) }
     }
 
     private fun passwordValidator(): Observable<Boolean> {
-        return _password.skip(1)
-            .map { p -> Pattern.matches(PASSWORD_REGEX, p) }
+        return _password.map { p -> Pattern.matches(PASSWORD_REGEX, p) }
             .doOnNext { showMessage(et_6password, "password check", it) }
     }
 
@@ -86,6 +87,10 @@ class SixWeekActivity : AppCompatActivity() {
         } else {
             message
         }
+    }
+
+    private fun gogogogogo() {
+        Toast.makeText(this, "gogogo", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
