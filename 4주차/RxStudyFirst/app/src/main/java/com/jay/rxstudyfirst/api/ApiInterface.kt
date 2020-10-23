@@ -12,7 +12,9 @@ interface ApiInterface {
 
     @GET("list_movies.json")
     fun getMovie(
-        @Query("query_term") query: String
+        @Query("query_term") query: String,
+        @Query("page") page: Int,
+        @Query("limit") limit: Int = 30
     ): Call<MovieResponse>
 
 }

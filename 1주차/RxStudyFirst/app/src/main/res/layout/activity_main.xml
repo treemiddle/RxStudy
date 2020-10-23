@@ -7,27 +7,21 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btn_single"
-        style="@style/btn_api_call"
-        android:text="@string/btn_single"
+    <EditText
+        android:id="@+id/et_query"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_result"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_maybe"
-        style="@style/btn_api_call"
-        android:text="@string/btn_maybe"
-        app:layout_constraintEnd_toStartOf="@id/btn_completable"
-        app:layout_constraintStart_toEndOf="@id/btn_single"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btn_completable"
-        style="@style/btn_api_call"
-        android:text="@string/btn_completable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_result"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/et_query" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -40,7 +34,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_single"
+        app:layout_constraintTop_toBottomOf="@id/et_query"
         tools:itemCount="5"
         tools:listitem="@layout/item_movie" />
 

@@ -9,7 +9,7 @@ class MainRemoteDataSourceImpl(
     private val remote: ApiInterface
 ) : MainRemoteDataSource {
 
-    override fun getMovie(query: String): Single<MovieResponse> {
-        return remote.getMovie(query).rxSingle()
+    override fun getMovie(query: String, page: Int): Single<MovieResponse> {
+        return remote.getMovie(query, page).rxSingle()
     }
 }

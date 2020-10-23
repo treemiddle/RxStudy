@@ -42,7 +42,7 @@ class MainViewModel(private val mainRepository: MainRepository) {
             }
         }
 
-        disposable = mainRepository.getMovie(query)
+        disposable = mainRepository.getMovie(query, 10)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showLoading() }
