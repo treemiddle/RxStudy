@@ -533,12 +533,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$USER_HOME$/Projects/User/app/src/main/java/com/artilearn/happygolfgo/data/reserveconfirm/source/ReserveConfirmRepositoryImpl.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$USER_HOME$/Projects/User/app/src/main/java/com/artilearn/happygolfgo/ui/home/gamecenter/GameCenterViewModel.kt">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$USER_HOME$/Projects/User/app/src/main/java/com/artilearn/happygolfgo/ui/login/LoginViewModel.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/Projects/User/app/src/main/java/com/artilearn/happygolfgo/ui/reserveconfirm/ReserveConfirmActivity.kt">
           <value>
             <set />
           </value>

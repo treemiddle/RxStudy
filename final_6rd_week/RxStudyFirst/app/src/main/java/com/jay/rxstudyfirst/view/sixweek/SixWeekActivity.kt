@@ -1,6 +1,7 @@
 package com.jay.rxstudyfirst.view.sixweek
 
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
@@ -19,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_sixweek.*
 import java.util.regex.Pattern
 
 class SixWeekActivity : AppCompatActivity() {
+    private val TAG = javaClass.simpleName
 
     private val compositeDisposable = CompositeDisposable()
     private val _email = BehaviorSubject.createDefault("")
@@ -30,7 +32,7 @@ class SixWeekActivity : AppCompatActivity() {
         Function3 { e: Boolean, p: Boolean, c: Boolean -> Triple(e, p, c) }
     )
         .map { (e, p, c) -> e && p && c }
-        .replay().autoConnect()
+        .replay(1).autoConnect()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,48 +47,36 @@ class SixWeekActivity : AppCompatActivity() {
 
     private fun bindRx() {
         initFormCheck(btn6, allCheck)
-
-        val getObservable =
-            _button.withLatestFrom(allCheck, BiFunction { _: Unit, x: Boolean -> x })
-                .share()
-
-        getObservables(getObservable)
     }
 
     private fun initTextLitener(et: EditText, subject: BehaviorSubject<String>) {
         et.addTextChangedListener { subject.onNext(it.toString()) }
     }
 
-    private fun initButtonClick(btn: Button, subject: PublishSubject<Unit>) {
-        btn.setOnClickListener { subject.onNext(Unit) }
-    }
-
     private fun emailValidator(): Observable<Boolean> {
         return _email.skip(1)
             .map { e -> Patterns.EMAIL_ADDRESS.matcher(e).matches() }
-            .doOnNext { result -> showMessage(et_6email, "email check", result) }
+            .doOnNext { showMessage(et_6email, "email check", it) }
     }
 
     private fun passwordValidator(): Observable<Boolean> {
         return _password.skip(1)
             .map { p -> Pattern.matches(PASSWORD_REGEX, p) }
-            .doOnNext { result -> showMessage(et_6password, "password check", result) }
+            .doOnNext { showMessage(et_6password, "password check", it) }
     }
 
     private fun confirmValidator(): Observable<Boolean> {
-        return _confirm.map { c -> _password.value == c }
-            .doOnNext { result -> showMessage(et_6confirm, "do not same", result) }
+        return Observable.combineLatest(_password, _confirm, BiFunction { p: String, c: String -> p == c })
+            .doOnNext { showMessage(et_6confirm, "check", it) }
+    }
+
+    private fun initButtonClick(btn: Button, subject: PublishSubject<Unit>) {
+        btn.setOnClickListener { subject.onNext(Unit) }
     }
 
     private fun initFormCheck(btn: Button, observable: Observable<Boolean>) {
         observable.observeOn(AndroidSchedulers.mainThread())
             .subscribe { btn.isEnabled = it }
-            .let(compositeDisposable::add)
-    }
-
-    private fun getObservables(observers: Observable<Boolean>) {
-        observers.observeOn(AndroidSchedulers.mainThread())
-            .subscribe { /* 화면 이동 */ }
             .let(compositeDisposable::add)
     }
 
